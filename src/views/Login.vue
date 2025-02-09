@@ -1,16 +1,16 @@
 <script setup>
-import { useCounterStore } from '../stores/user';
+import { useUserStore } from '../stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useRouter } from 'vue-router';
 
-const store = useCounterStore();
-const { user_id, hash } = storeToRefs(store);
+const router = useRouter();
+const store = useUserStore();
 const email = ref('');
 const password = ref('');
 const apiUrl = import.meta.env.VITE_API_URL
-
-console.log(store);
 
 function login() {
   axios.post(apiUrl + '/login', {
@@ -19,11 +19,8 @@ function login() {
   })
   .then(function (response) {
     store.user_id = response.data.user_id;
-    console.log(response.data.token);
-    console.log(response.data.user_id);
-    console.log(response.data);
-    document.cookie = "token= " + response.data.token + "; path=/; secure; HttpOnly";
-    window.location.href = '/user/'+ response.data.hash;
+    Cookies.set('token', response.data.token, { secure: true, path: '/' });
+    router.push({ name: 'user', params: { hash: response.data.hash } })
   })
   .catch(function (error) {
     console.log(error);

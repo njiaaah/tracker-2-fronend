@@ -1,15 +1,15 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useCounterStore = defineStore('user', () => {
-  const user_id = ref(0)
-  const hash = ref(0)
-  const getUserId = () => {
-    return user_id.value
-  }
-  const getHash = () => {
-    return hash.value
-  }
-
-  return { user_id, hash, getUserId, getHash }
+export const useUserStore = defineStore('user', {
+  persist: true, // enable persistence
+  state: () => ({
+    user_id: ref(0),
+    hash: ref(0),
+    persist: true,
+  }),
+  getters: {
+    getUserId: (state) => state.user_id.value,
+    getHash: (state) => state.hash.value,
+  },
 })
