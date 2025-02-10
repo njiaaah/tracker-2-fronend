@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!isHidden">
     <div
       class="w-full py-4 px-6 rounded-2xl text-white"
       :class="[color, { 'col-span-2': span ? span : false }]"
@@ -9,6 +9,7 @@
       </div>
 
       <div>is selected {{isSelected}}</div>
+      <div>is hidden {{isHidden}}</div>
 
       <div class="flex justify-between">
         <div>{{ heading }}</div>
@@ -25,6 +26,6 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 
-const props = defineProps(['icon', 'heading', 'color', 'span', 'isSelected']);
+const props = defineProps(['icon', 'heading', 'color', 'span', 'isSelected', 'isHidden']);
 const emit = defineEmits(['close']);
 </script>

@@ -4,36 +4,41 @@
 
     <Calendar />
 
-    <div class="grid grid-cols-2 gap-4 p-4">
+    <div class="grid grid-cols-2 gap-4 p-4" ref="myWrapper">
       <DashboardTile
       v-for="(tile, index) in tiles"
-      :key="tile.isHidden + tile.isSelected + index"
+      :key="'tike-'+index"
       :icon="tile.icon"
       :heading="tile.heading"
       :color="tile.color"
       :span="tile.span"
       :is-selected="tile.isSelected"
+      :is-hidden="tile.isHidden"
       @click="openTile(tile)"
       @close="closeTile"
-    />
-z    
+    /> 
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, nextTick } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
 import DashboardTile from '../components/DashboardTile.vue';
 import Calendar from '../components/Calendar.vue';
+import autoAnimate from '@formkit/auto-animate';
+
+autoAnimate(document.body);
+
+
 
 axios.defaults.headers.common['Authorization'] =
   'Bearer ' + Cookies.get('token');
 
-const tiles = ref([
+const tiles = reactive([
   {
     icon: 'Weight',
     heading: 'Weight',
@@ -62,6 +67,13 @@ const store = useUserStore();
 const { user_id } = storeToRefs(store);
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get('token');
+const tilesWrapper = ref(null);
+
+const myWrapper = ref(null);
+
+onMounted(() => {
+  console.log(myWrapper.value);
+});
 
 console.log('id', user_id.value);
 
@@ -81,22 +93,22 @@ function getUser() {
 }
 
 function openTile(visibleTile) {
-  // Just hide all tiles first
-  tiles.value.forEach(tile => tile.isHidden = true);
-  visibleTile.isHidden = false; // Only show the selected tile
-  visibleTile.isSelected = true;
-  console.log("Tiles after openTile", tiles.value);
+  console.log(visibleTile.isSelected)
+  if(visibleTile.isSelected) {
+    visibleTile.isSelected = false
+    return
+  }
+  console.log('opening')
+  tiles.forEach(tile => Object.assign(tile, { isHidden: true, isSelected: false }));
+  Object.assign(visibleTile, { isHidden: false, isSelected: true });
 }
 
 function closeTile() {
-  // Reset the visibility and selection for all tiles
-  tiles.value.forEach(tile => {
-    tile.isHidden = false;
-    tile.isSelected = false;
-  });
-  console.log("Tiles after closeTile", tiles.value);
+  nextTick(() => {
+    console.log('closing')
+    tiles.forEach(tile => Object.assign(tile, { isHidden: false }));
+  })
 }
-
 
 onMounted(() => {
   getUser();
