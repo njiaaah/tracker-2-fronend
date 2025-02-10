@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+  import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import User from '../views/user-[hash].vue'
 
