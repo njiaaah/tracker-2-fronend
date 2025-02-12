@@ -1,24 +1,61 @@
 <template>
-  <div class="about">
-    <h1>Hello World! {{ $route.params.hash }}</h1>
+  <div class="about p-4 flex flex-col gap-4 h-screen w-screen">
 
-    <Calendar />
+    <Calendar @select-day="selectDay" />
 
-    <div class="grid grid-cols-2 gap-4 p-4" ref="myWrapper">
+    <h1></h1>
+
+    <div
+      class="grid grid-cols-2 gap-4  outline-1"
+      :class="[isItemSelected ? 'h-screen' : '']"
+      ref="myWrapper"
+      v-auto-animate
+    >
       <DashboardTile
-      v-for="(tile, index) in tiles"
-      :key="'tike-'+index"
-      :icon="tile.icon"
-      :heading="tile.heading"
-      :color="tile.color"
-      :span="tile.span"
-      :is-selected="tile.isSelected"
-      :is-hidden="tile.isHidden"
-      @click="openTile(tile)"
-      @close="closeTile"
-    /> 
+        v-for="(tile, index) in tiles"
+        v-show="!selectedTile || selectedTile === tile"
+        :key="'tike-' + index"
+        :color="tile.color"
+        :isOpened="selectedTile === tile"
+        @click="selectItem(tile)"
+        :class="[tile.col ? tile.col : '', tile.row ? tile.row : '']"
+        v-auto-animate
+        
+      >
+        <template v-slot:header v-auto-animate>
+          <div class="flex justify-between">
+            <mdicon
+              class="order-1"
+              :name="selectedTile === tile ? 'close' : tile.icon"
+              @click.stop="closeTile"
+            />
+            <p>{{ tile.heading }}</p>
+          </div>
+        </template>
+        
+
+         <template v-slot:default>
+          
+          <component v-auto-animate :is="tile.component" :isOpened="selectedTile === tile" :user-id="user_id" :selected-day="selectedDay">
+
+            <template v-slot:loading></template>
+
+            <template v-slot:preview></template>
+
+            <template v-slot:full></template>
+
+          </component>
+
+         </template>
+
+
+      </DashboardTile>
     </div>
+
+    <Footer v-auto-animate :selected-day="selectedDay" />
   </div>
+
+
 </template>
 
 <script setup>
@@ -29,37 +66,36 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
 import DashboardTile from '../components/DashboardTile.vue';
 import Calendar from '../components/Calendar.vue';
-import autoAnimate from '@formkit/auto-animate';
-
-autoAnimate(document.body);
-
-
+import Foods from '../components/Tiles/Foods.vue';
+import Footer from '../components/Footer/Index.vue';
+import router from '@/router';
 
 axios.defaults.headers.common['Authorization'] =
   'Bearer ' + Cookies.get('token');
 
-const tiles = reactive([
+const tiles = ref([
   {
     icon: 'Weight',
     heading: 'Weight',
     color: 'bg-green-500',
-    isHidden: false,
-    isSelected: false,
   },
   {
     icon: 'flag-checkered',
     heading: 'Goal',
     color: 'bg-violet-300',
-    isHidden: false,
-    isSelected: false,
+    row: 'row-span-2',
+  },
+  {
+    icon: 'Weight',
+    heading: 'Weight',
+    color: 'bg-green-500',
   },
   {
     icon: 'food',
     heading: 'Food',
     color: 'bg-yellow-500',
-    span: 2,
-    isHidden: false,
-    isSelected: false,
+    col: 'col-span-2',
+    component: Foods,
   },
 ]);
 
@@ -67,52 +103,39 @@ const store = useUserStore();
 const { user_id } = storeToRefs(store);
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get('token');
-const tilesWrapper = ref(null);
+const foodLogs = ref(null);
+const selectedTile = ref(null);
+const selectedDay = ref(new Date().toISOString().split('T')[0]); // Alternative fix
+const url = window.location.href;
+const selectedDaysWeight = ref(null);
 
-const myWrapper = ref(null);
-
-onMounted(() => {
-  console.log(myWrapper.value);
-});
-
-console.log('id', user_id.value);
-
-function getUser() {
-  axios
-    .get(apiUrl + '/food_logs/', {
-      params: {
-        user_id: user_id.value,
-      },
-    })
-    .then(function (response) {
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-function openTile(visibleTile) {
-  console.log(visibleTile.isSelected)
-  if(visibleTile.isSelected) {
-    visibleTile.isSelected = false
-    return
-  }
-  console.log('opening')
-  tiles.forEach(tile => Object.assign(tile, { isHidden: true, isSelected: false }));
-  Object.assign(visibleTile, { isHidden: false, isSelected: true });
+function selectItem(tile) {
+  selectedTile.value = selectedTile.value === tile ? tile : tile;
 }
 
 function closeTile() {
   nextTick(() => {
-    console.log('closing')
-    tiles.forEach(tile => Object.assign(tile, { isHidden: false }));
-  })
+    selectedTile.value = null;
+  });
 }
 
-onMounted(() => {
-  getUser();
+function selectDay(day) {
+  selectedDay.value = day;
+}
+
+onMounted(async () => {
+  console.log('today is ', selectedDay.value)
+  // console.log('login id',user_id.value)
+  axios.get(apiUrl + '/user_weights', { params: { user_id: user_id.value, start_date: selectedDay.value, end_date: selectedDay.value } })
+  .then(function (response) {
+    selectedDaysWeight.value = response.data[0].weight;
+    console.log(selectedDaysWeight.value)
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
 });
+
 </script>
 
 <style></style>
