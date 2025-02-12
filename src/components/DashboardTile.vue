@@ -17,6 +17,6 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 
-const props = defineProps(['icon', 'heading', 'color', 'span', 'isSelected', 'isHidden']);
+const props = defineProps(['icon', 'heading', 'color', 'span', 'isSelected', 'isHidden', 'weightSelected']);
 const emit = defineEmits(['close']);
 </script>

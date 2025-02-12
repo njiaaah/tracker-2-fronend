@@ -14,11 +14,12 @@
       <DashboardTile
         v-for="(tile, index) in tiles"
         v-show="!selectedTile || selectedTile === tile"
-        :key="'tike-' + index"
+        :key="'tile-' + index"
         :color="tile.color"
         :isOpened="selectedTile === tile"
         @click="selectItem(tile)"
         :class="[tile.col ? tile.col : '', tile.row ? tile.row : '']"
+        :value="selectedDaysWeight"
         v-auto-animate
         
       >
@@ -68,6 +69,7 @@ import DashboardTile from '../components/DashboardTile.vue';
 import Calendar from '../components/Calendar.vue';
 import Foods from '../components/Tiles/Foods.vue';
 import Footer from '../components/Footer/Index.vue';
+import Weight from '../components/Tiles/Weight.vue';
 import router from '@/router';
 
 axios.defaults.headers.common['Authorization'] =
@@ -78,6 +80,7 @@ const tiles = ref([
     icon: 'Weight',
     heading: 'Weight',
     color: 'bg-green-500',
+    component: Weight,
   },
   {
     icon: 'flag-checkered',
@@ -125,11 +128,9 @@ function selectDay(day) {
 
 onMounted(async () => {
   console.log('today is ', selectedDay.value)
-  // console.log('login id',user_id.value)
   axios.get(apiUrl + '/user_weights', { params: { user_id: user_id.value, start_date: selectedDay.value, end_date: selectedDay.value } })
   .then(function (response) {
     selectedDaysWeight.value = response.data[0].weight;
-    console.log(selectedDaysWeight.value)
   })
   .catch(function (error) {
     console.log(error);

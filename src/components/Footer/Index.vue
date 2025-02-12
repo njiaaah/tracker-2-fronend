@@ -68,7 +68,7 @@ import axios from 'axios';
 
 const store = useUserStore();
 const { user_id } = storeToRefs(store);
-const isModalVisible = ref(true);
+const isModalVisible = ref(false);
 const formType = ref('user_weights');
 const label = ref('Add weight for selected day');
 const url = ref('weight');
@@ -79,33 +79,39 @@ const food = ref('');
 const calories = ref('');
 const food_weight = ref('');
 const apiUrl = import.meta.env.VITE_API_URL;
+let data = {};
 
-async function submit() {
-    let data = {}
-    console.log(selectedDay)
-    if (formType.value === 'user_weights') {
+function submit() {
+
+  console.log('weight', user_weight.value > 10);
+  if (formType.value === 'user_weights' && user_weight.value) {
     data = {
       user_id: user_id.value,
       date: selectedDay.value,
-      weight: user_weight.value
-    }
+      weight: user_weight.value,
+    };
+    actualSubmit();
   }
-  if (formType.value === 'food_logs') {
+  if (formType.value === 'food_logs' && food.value && calories.value) {
     data = {
       user_id: user_id.value,
       date: selectedDay.value,
       name: food.value,
       calories: calories.value,
-      weight: food_weight.value
-    }
+      weight: food_weight.value,
+    };
+    actualSubmit();
   }
-  console.log(data)
-  axios.post(apiUrl + '/' + formType.value, data)
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+}
+
+async function actualSubmit() {
+  axios
+    .post(apiUrl + '/' + formType.value, data)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 }
 </script>

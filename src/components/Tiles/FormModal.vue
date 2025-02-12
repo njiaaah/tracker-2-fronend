@@ -9,12 +9,12 @@
       <form
         @submit.prevent="submitForm"
       >
-        <form class="flex flex-col gap-4  text-xl" action="">
+        <div class="flex flex-col gap-4  text-xl" action="">
           <div class="outline-none">{{ label ? label : 'Confirm action' }}</div>
 
           <slot name="form"> </slot>
           <button class="p-4 bg-sky-500 rounded-2xl text-white" @click.prevent="submitForm">Submit</button>
-        </form>
+        </div>
       </form>
     </div>
   </div>
