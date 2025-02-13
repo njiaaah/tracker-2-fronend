@@ -1,6 +1,6 @@
 <template>
   <div
-    class="transition-all flex w-full justify-end gap-4 absolute bottom-4 right-0 px-4"
+    class="absolute right-0 bottom-4 flex w-full justify-end gap-4 px-4 transition-all"
   >
     <AddItem
       :color="'bg-sky-500'"
@@ -29,7 +29,7 @@
     @submit="submit"
   >
     <template v-slot:form>
-      <div class="*:flex *:flex-col *:gap-4 *:*:p-4 *:*:ring-1 *:*:rounded-2xl">
+      <div class="*:flex *:flex-col *:gap-4 *:*:rounded-2xl *:*:p-4 *:*:ring-1">
         <div v-if="formType === 'user_weights'">
           <input
             type="number"
@@ -60,7 +60,7 @@
 
 <script setup>
 import AddItem from './AddItem.vue';
-import { ref } from 'vue';
+import { ref, defineEmits, watch } from 'vue';
 import FormModal from '../Tiles/FormModal.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../../stores/user';
@@ -80,11 +80,22 @@ const calories = ref('');
 const food_weight = ref('');
 const apiUrl = import.meta.env.VITE_API_URL;
 let data = {};
+const emit = defineEmits(['submit']);
+let submitType = ref('');
+
+watch(
+  () => props.selectedDay,
+  (val) => {
+    if (!val) return;
+    selectedDay.value = val;
+  },
+  { immediate: true },
+);
 
 function submit() {
-
-  console.log('weight', user_weight.value > 10);
+  console.log('submiting ' + user_weight.value + ' for ' + selectedDay.value);
   if (formType.value === 'user_weights' && user_weight.value) {
+    submitType.value = 'weight';
     data = {
       user_id: user_id.value,
       date: selectedDay.value,
@@ -93,6 +104,7 @@ function submit() {
     actualSubmit();
   }
   if (formType.value === 'food_logs' && food.value && calories.value) {
+    submitType.value = 'food';
     data = {
       user_id: user_id.value,
       date: selectedDay.value,
@@ -108,7 +120,8 @@ async function actualSubmit() {
   axios
     .post(apiUrl + '/' + formType.value, data)
     .then(function (response) {
-      console.log(response);
+      emit('submit', data, submitType.value);
+      isModalVisible.value = false;
     })
     .catch(function (error) {
       console.log(error);

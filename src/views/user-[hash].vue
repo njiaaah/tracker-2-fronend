@@ -1,13 +1,14 @@
 <template>
-  <div class="about p-4 flex flex-col gap-4 h-screen w-screen">
+  <div class="about flex h-screen w-screen flex-col p-4">
 
-    <Calendar @select-day="selectDay" />
+    <p class="font-medium opacity-50 capitalize">{{ formattedDate }}</p>
+    <h1 class="font-semibold text-3xl opacity-75 mb-4">Dashboard</h1>
 
-    <h1></h1>
+    <Calendar @select-day="selectDay" class="mb-4" />
 
     <div
-      class="grid grid-cols-2 gap-4  outline-1"
-      :class="[isItemSelected ? 'h-screen' : '']"
+      class="gap-4 outline-1"
+      :class="[isItemSelected ? 'flex' : 'grid grid-cols-2']"
       ref="myWrapper"
       v-auto-animate
     >
@@ -21,7 +22,6 @@
         :class="[tile.col ? tile.col : '', tile.row ? tile.row : '']"
         :value="selectedDaysWeight"
         v-auto-animate
-        
       >
         <template v-slot:header v-auto-animate>
           <div class="flex justify-between">
@@ -33,48 +33,60 @@
             <p>{{ tile.heading }}</p>
           </div>
         </template>
-        
 
-         <template v-slot:default>
-          
-          <component v-auto-animate :is="tile.component" :isOpened="selectedTile === tile" :user-id="user_id" :selected-day="selectedDay">
-
-            <template v-slot:loading></template>
-
+        <template v-slot:default>
+          <component
+            v-auto-animate
+            :is="tile.component"
+            :isOpened="selectedTile === tile"
+            :user-id="user_id"
+            :selected-day="selectedDay"
+            :new-item="newItem"
+            :goal="settings.goal"
+            @emit-todays-foods="emitTodaysFoods"
+            :calories-today="caloriesToday"
+            :new-weight="newWeight"
+            class="flex h-full flex-col"
+          >
             <template v-slot:preview></template>
 
             <template v-slot:full></template>
-
           </component>
-
-         </template>
-
-
+        </template>
       </DashboardTile>
     </div>
 
-    <Footer v-auto-animate :selected-day="selectedDay" />
+    <Footer v-auto-animate :selected-day="selectedDay" @submit="handleSubmit" />
   </div>
-
-
 </template>
 
 <script setup>
 import { onMounted, ref, reactive, nextTick } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '../stores/user';
 import DashboardTile from '../components/DashboardTile.vue';
 import Calendar from '../components/Calendar.vue';
 import Foods from '../components/Tiles/Foods.vue';
 import Footer from '../components/Footer/Index.vue';
 import Weight from '../components/Tiles/Weight.vue';
-import router from '@/router';
+import Goal from '../components/Tiles/Goal.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '../stores/user';
+import { useNow, useDateFormat } from '@vueuse/core'
 
-axios.defaults.headers.common['Authorization'] =
-  'Bearer ' + Cookies.get('token');
-
+const store = useUserStore();
+const { user_id, settings } = storeToRefs(store);
+const apiUrl = import.meta.env.VITE_API_URL;
+const token = Cookies.get('token');
+const foodLogs = ref(null);
+const selectedTile = ref(null);
+const selectedDay = ref(new Date().toISOString().split('T')[0]); // Alternative fix
+const url = window.location.href;
+const selectedDaysWeight = ref(null);
+const isItemSelected = ref(false);
+const newItem = ref('placeholder');
+const caloriesToday = ref(0);
+const newWeight = ref(0);
 const tiles = ref([
   {
     icon: 'Weight',
@@ -87,11 +99,12 @@ const tiles = ref([
     heading: 'Goal',
     color: 'bg-violet-300',
     row: 'row-span-2',
+    component: Goal,
   },
   {
-    icon: 'Weight',
-    heading: 'Weight',
-    color: 'bg-green-500',
+    icon: 'flag-checkered',
+    heading: 'Goal',
+    color: 'bg-sky-300',
   },
   {
     icon: 'food',
@@ -101,24 +114,30 @@ const tiles = ref([
     component: Foods,
   },
 ]);
+const now = useNow();
+const formattedDate = useDateFormat(now, 'dddd, DD.MM', {locales: 'ru'});
 
-const store = useUserStore();
-const { user_id } = storeToRefs(store);
-const apiUrl = import.meta.env.VITE_API_URL;
-const token = Cookies.get('token');
-const foodLogs = ref(null);
-const selectedTile = ref(null);
-const selectedDay = ref(new Date().toISOString().split('T')[0]); // Alternative fix
-const url = window.location.href;
-const selectedDaysWeight = ref(null);
+axios.defaults.headers.common['Authorization'] =
+  'Bearer ' + Cookies.get('token');
 
 function selectItem(tile) {
   selectedTile.value = selectedTile.value === tile ? tile : tile;
+  isItemSelected.value = true;
+}
+
+function handleSubmit(data, type) {
+  if (type === 'weight') {
+    newWeight.value = data;
+  }
+  if (type === 'food') {
+    newItem.value = data;
+  }
 }
 
 function closeTile() {
   nextTick(() => {
     selectedTile.value = null;
+    isItemSelected.value = false;
   });
 }
 
@@ -126,17 +145,27 @@ function selectDay(day) {
   selectedDay.value = day;
 }
 
-onMounted(async () => {
-  console.log('today is ', selectedDay.value)
-  axios.get(apiUrl + '/user_weights', { params: { user_id: user_id.value, start_date: selectedDay.value, end_date: selectedDay.value } })
-  .then(function (response) {
-    selectedDaysWeight.value = response.data[0].weight;
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-});
+function emitTodaysFoods(data) {
+  caloriesToday.value = data.reduce((acc, item) => acc + item.calories, 0);
+}
 
+onMounted(async () => {
+  console.log('getting weight for: ', selectedDay.value);
+  axios
+    .get(apiUrl + '/user_weights', {
+      params: {
+        user_id: user_id.value,
+        start_date: selectedDay.value,
+        end_date: selectedDay.value,
+      },
+    })
+    .then(function (response) {
+      selectedDaysWeight.value = response.data[0].weight;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+});
 </script>
 
 <style></style>
