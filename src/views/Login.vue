@@ -38,8 +38,9 @@ function login() {
 
 onMounted(() => {
   const token = Cookies.get('token');
-  console.log(token);
-  getHash();
+  if (token) {
+    getHash();
+  }
 });
 
 async function getHash() {
@@ -54,7 +55,6 @@ async function getHash() {
       .then(function (response) {
         hash.value = response.data.hash;
         let params = { hash: hash.value };
-        console.log(response.data);
         store.settings = response.data.settings;
         router.push({ name: 'user', params: params });
       })

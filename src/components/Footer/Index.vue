@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute right-0 bottom-4 flex w-full justify-end gap-4 px-4 transition-all"
+    class="w-fit absolute right-0 bottom-4 flex justify-end gap-4 px-4 transition-all"
   >
     <AddItem
       :color="'bg-sky-500'"
@@ -93,7 +93,6 @@ watch(
 );
 
 function submit() {
-  console.log('submiting ' + user_weight.value + ' for ' + selectedDay.value);
   if (formType.value === 'user_weights' && user_weight.value) {
     submitType.value = 'weight';
     data = {
