@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <c-btn :label="'go to today'"></c-btn>
-    <div class="flex gap-2 min-h-fit overflow-x-auto px-0 pt-8 pb-2 overflow-y-clip" ref="calendar" @scroll="handleScroll">
+  <div class="relative">
+    <c-btn v-if="isTodayOutOfview" class="w-fit absolute -top-14 right-4" @click="scrollTodayIntoView" :label="'go to today'"></c-btn>
+    <div class="flex gap-2 min-h-fit overflow-x-auto px-0 pt-2 pb-2 overflow-y-clip" ref="calendar" @scroll="handleScroll">
       <div
         v-for="(day, index) in daysRendered"
         :key="index"
@@ -31,12 +31,13 @@ export default {
       daysOfWeek: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       daysRendered: [],
       // days before and after init day
-      calendarScope: 81,
+      calendarScope: 14,
       todayIndex: 0,
       selectedDay: 0,
       isTodayOutOfview: false,
     };
   },
+  components: { cBtn },
   methods: {
     renderCarendar(amount) {
       const today = new Date();
@@ -81,15 +82,12 @@ export default {
 
       return newObject;
     },
-
     handleScroll(event) {
-      let diff = event.target.scrollWidth / event.target.scrollLeft;
-      if (diff > 2.6 || diff < 2) {
-        this.isTodayOutOfview = true
-      } 
-      else {
-        this.isTodayOutOfview = false
-      }
+
+      console.log(this.windowWidth)
+      let calendarW = event.target.clientWidth
+      this.isTodayOutOfview = event.target.scrollLeft + calendarW < this.$refs.todayRef[0].offsetLeft 
+          || event.target.scrollLeft > this.$refs.todayRef[0].offsetLeft
     },
     selectDay(index) {
       console.log(index)
@@ -101,6 +99,11 @@ export default {
       console.log('emiting selected day and a week before ', initialDay)
       this.$emit('select-day', initialDay);
     },
+  },
+  computed: {
+    windowWidth() {
+      return window.innerWidth
+    }
   },
   mounted() {
     console.log(new Date());
