@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="dark:text-gray-100 text-gray-600">
     <slot name="header"></slot>
     <slot name="default">
       <Loading v-if="isLoaded" />
       <div v-else class="text-start text-[3.5rem] font-bold opacity-90
-      flex flex-col justify-between h-full mt-2">
+      flex flex-col justify-between h-full mt-2 ">
         <div v-if="selectedDaysWeight">
           {{ selectedDaysWeight }}
         </div>
@@ -25,10 +25,10 @@
             >
               <mdicon name="chevron-down" />
             </div>
-            <div class="mr-2">
+            <div class="mr-2 font-black">
               {{ weekDifference.toString().replace("-", " ") }} 
             </div>
-            <div class="text-gray-600 mt-1 leading-none">from week before</div>
+            <div class="dark:text-gray-300 dark:font-normal text-gray-600 mt-1 leading-none">from week before</div>
           </div>
         </div>
       </div>

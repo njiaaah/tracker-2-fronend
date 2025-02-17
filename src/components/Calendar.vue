@@ -1,22 +1,29 @@
 <template>
-  <div class="flex gap-2 overflow-x-auto px-0" ref="calendar">
-    <div
-      v-for="(day, index) in daysRendered"
-      :key="index"
-      @click="selectDay(index)"
-      class="flex min-w-[13%] cursor-pointer flex-col items-center justify-center rounded-xl p-1 transition-all select-none hover:bg-lime-200"
-      :class="todaysIndex === index ? 'bg-sky-500 text-white' : ''"
-      :ref="todaysIndex === index ? 'todayRef' : null"
-    >
-      <div>{{ day.day.slice(8, 10) }}</div>
-      <div class="font-semibold">{{ daysOfWeek[index % 7] }}</div>
+  <div>
+    <c-btn :label="'go to today'"></c-btn>
+    <div class="flex gap-2 min-h-fit overflow-x-auto px-0 pt-8 pb-2 overflow-y-clip" ref="calendar" @scroll="handleScroll">
+      <div
+        v-for="(day, index) in daysRendered"
+        :key="index"
+        @click="selectDay(index)"
+        class="flex min-w-[13%] cursor-pointer flex-col items-center 
+        justify-center rounded-xl gap-1 min-h-fit p-1 transition-all select-none hover:bg-lime-200"
+        :class="selectedDay === index ? 'bg-sky-500 text-white' : '',
+        day.day.slice(8, 10) == daysRendered[calendarScope - 1].day.slice(8, 10) ? 
+        'outline-2 outline-sky-500' : ''"
+        :ref="selectedDay === index ? 'todayRef' : null"
+      >
+        <div>{{ day.day.slice(8, 10) }}</div>
+        <div class="font-semibold">{{ daysOfWeek[index % 7] }}</div>
+      </div>
     </div>
-  </div>
+</div>
 </template>
 
 <script>
 import { useNow, useDateFormat } from '@vueuse/core';
 import { nextTick } from 'vue';
+import cBtn from '../components/Items/Button.vue';
 
 export default {
   data() {
@@ -24,45 +31,75 @@ export default {
       daysOfWeek: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       daysRendered: [],
       // days before and after init day
-      calendarScope: 8,
-      todaysIndex: 0,
+      calendarScope: 81,
+      todayIndex: 0,
+      selectedDay: 0,
+      isTodayOutOfview: false,
     };
   },
   methods: {
     renderCarendar(amount) {
       const today = new Date();
-      this.todaysIndex = this.calendarScope + 1;
+      this.todayIndex = this.calendarScope - 1 
+      this.selectedDay = this.todayIndex;
       this.daysRendered.push(this.getCalendarObject(today));
       for (let i = 1; i < amount; i++) {
         for (let z = -1; z < 2; z += 2) {
           let newDay = new Date(today);
-          newDay.setDate(newDay.getDate() + i * z);
+          newDay.setDate(newDay.getDate() - i * z);
           let newItem = this.getCalendarObject(newDay);
           z < 0
-            ? this.daysRendered.unshift(newItem)
-            : this.daysRendered.push(newItem);
+            ? this.daysRendered.push(newItem)
+            : this.daysRendered.unshift(newItem);
         }
       }
-
-      console.table(this.daysRendered);
       nextTick(() => {
-        let today = this.$refs.todayRef[0];
+        this.scrollTodayIntoView();
+        console.table('days rendered', this.daysRendered)
+      })
+    },
+    scrollTodayIntoView() {
+          let today = this.$refs.todayRef[0];
         today.scrollIntoView({
           behaviour: 'smooth',
           block: 'center',
           inline: 'center',
         });
-      });
     },
     getCalendarObject(dayProvided) {
+      let dayCopy = new Date(dayProvided); // Create a copy
+      let weekBefore = new Date(dayCopy.setDate(dayCopy.getDate() - 7)); // Modify the copy
+
       let newObject = {
         day: dayProvided.toISOString().slice(0, 10),
         dayOfWeek:
           dayProvided.getDay() === 0
             ? this.daysOfWeek[6]
             : this.daysOfWeek[dayProvided.getDay() - 1],
+        aWeekBeforeDay: weekBefore.toISOString().slice(0, 10),
       };
+
       return newObject;
+    },
+
+    handleScroll(event) {
+      let diff = event.target.scrollWidth / event.target.scrollLeft;
+      if (diff > 2.6 || diff < 2) {
+        this.isTodayOutOfview = true
+      } 
+      else {
+        this.isTodayOutOfview = false
+      }
+    },
+    selectDay(index) {
+      console.log(index)
+      this.selectedDay = index
+      const initialDay = {
+        formattedDate: this.daysRendered[index].day,
+        weekBeforeDay: this.daysRendered[index].aWeekBeforeDay,
+      }
+      console.log('emiting selected day and a week before ', initialDay)
+      this.$emit('select-day', initialDay);
     },
   },
   mounted() {

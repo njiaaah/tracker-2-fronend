@@ -87,13 +87,13 @@ const tiles = ref([
   {
     icon: 'Weight',
     heading: 'Weight',
-    color: 'text-green-500',
+    color: 'text-lime-500',
     component: Weight,
   },
   {
     icon: 'flag-checkered',
     heading: 'Goal',
-    color: 'text-violet-300',
+    color: 'text-purple-300',
     row: 'row-span-2',
     component: Goal,
   },
@@ -105,7 +105,7 @@ const tiles = ref([
   {
     icon: 'food',
     heading: 'Food',
-    color: 'text-yellow-500',
+    color: 'text-yellow-400',
     col: 'col-span-2',
     component: Foods,
   },

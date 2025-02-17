@@ -1,8 +1,9 @@
 <template>
     
-    <div class="px-4 grid items-center overflow-clip" :key="radialkey">
+    <div class="px-4 grid items-center" :key="radialkey">
         <Transition>
-        <div ref="indicator" class="indicator rounded-full rotate-135 "></div>
+        <div ref="indicator" class="indicator rounded-full rotate-135 
+        dark:after:bg-gray-900 dark:before:bg-gray-900 "></div>
     </Transition>
         <slot name="values"></slot>
     </div>
@@ -78,22 +79,32 @@ export default {
 
 <style scoped>
 
+
 .indicator {
-    background: #000;
     width: 100%;
     aspect-ratio: 1;
     position: relative;
+    
     &::after {
         display: block;
         content: '';
         width: 80%;
         height: 80%;
         border-radius: 50%;
-        background: #fff;
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+    &::before {
+        display: block;
+        content: '';
+        position: absolute;
+        width: 50%;
+        aspect-ratio: 1;
+        top: 0;
+        right: 0;
+        transform: translate();
     }
 }
 .hidden {

@@ -1,7 +1,7 @@
 <template>
   <div
-    class="component via-slate-000 to-slate-000 grid h-full 
-    w-full items-start rounded-2xl px-4 py-4 text-gray-600 ring-1 ring-gray-300"
+    class="component dark:bg-gray-900  grid h-full 
+    w-full items-start rounded-2xl px-4 py-4 text-gray-200 ring-1"
     :class="color ? { [color]: true } : {}"
   >
     <slot name="header"></slot>
