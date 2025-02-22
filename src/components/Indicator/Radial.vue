@@ -3,7 +3,7 @@
     <div class="px-4 grid items-center" :key="radialkey">
         <Transition>
         <div ref="indicator" class="indicator rounded-full rotate-135 
-        dark:after:bg-gray-900 dark:before:bg-gray-900 "></div>
+        dark:after:bg-gray-900 dark:before:bg-gray-900 after:bg-white before:bg-white "></div>
     </Transition>
         <slot name="values"></slot>
     </div>

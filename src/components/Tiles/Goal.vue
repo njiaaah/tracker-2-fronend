@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Loading from '../Icons/Loading.vue';
 import Radial from '../Indicator/Radial.vue';
 

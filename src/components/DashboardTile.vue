@@ -7,7 +7,8 @@
     <slot name="header"></slot>
 
     <div class="text-gray-600 h-full">
-      <slot name="default"></slot>
+      <slot name="default" :color="color">
+  </slot>
 
       <slot name="full"></slot>
     </div>
@@ -15,8 +16,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
 const props = defineProps([
   'icon',
   'heading',

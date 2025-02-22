@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="bg-sky-500 text-white rounded-lg p-2 px-4 w-full ">
+    <div class="bg-sky-500 text-white rounded-lg p-4 text-center w-full ">
       {{ label ? label : 'button' }}
     </div>
   </div>

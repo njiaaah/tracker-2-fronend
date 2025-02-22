@@ -5,7 +5,7 @@
       class="top-0 left-0 h-screen w-screen bg-black opacity-25"
     ></div>
 
-    <div class="fixed bottom-0 h-fit w-full dark:bg-gray-700 bg-gray-100 
+    <div class="fixed bottom-0 h-fit w-full dark:bg-gray-700 bg-white 
     dark:text-white text-gray-600 p-4 pb-16 transition-all">
       <form @submit.prevent="submitForm">
         <div class="flex flex-col gap-4 text-xl" action="">
@@ -25,7 +25,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
 import axios from 'axios';
 
 const props = defineProps(['label', 'modelValue']);

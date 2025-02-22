@@ -14,7 +14,7 @@
         :ref="selectedDay === index ? 'todayRef' : null"
       >
         <div>{{ day.day.slice(8, 10) }}</div>
-        <div class="font-semibold">{{ daysOfWeek[index % 7] }}</div>
+        <div class="font-semibold">{{ day.dayOfWeek }}</div>
       </div>
     </div>
 </div>
@@ -31,7 +31,7 @@ export default {
       daysOfWeek: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       daysRendered: [],
       // days before and after init day
-      calendarScope: 14,
+      calendarScope: 18,
       todayIndex: 0,
       selectedDay: 0,
       isTodayOutOfview: false,
@@ -56,7 +56,6 @@ export default {
       }
       nextTick(() => {
         this.scrollTodayIntoView();
-        console.table('days rendered', this.daysRendered)
       })
     },
     scrollTodayIntoView() {
@@ -83,20 +82,16 @@ export default {
       return newObject;
     },
     handleScroll(event) {
-
-      console.log(this.windowWidth)
       let calendarW = event.target.clientWidth
       this.isTodayOutOfview = event.target.scrollLeft + calendarW < this.$refs.todayRef[0].offsetLeft 
           || event.target.scrollLeft > this.$refs.todayRef[0].offsetLeft
     },
     selectDay(index) {
-      console.log(index)
       this.selectedDay = index
       const initialDay = {
         formattedDate: this.daysRendered[index].day,
         weekBeforeDay: this.daysRendered[index].aWeekBeforeDay,
       }
-      console.log('emiting selected day and a week before ', initialDay)
       this.$emit('select-day', initialDay);
     },
   },
@@ -106,7 +101,6 @@ export default {
     }
   },
   mounted() {
-    console.log(new Date());
     const initialDay = {
       formattedDate: useDateFormat(new Date(), 'YYYY-MM-DD').value,
       weekBeforeDay: useDateFormat(
@@ -114,7 +108,6 @@ export default {
         'YYYY-MM-DD',
       ).value,
     };
-    console.log('init day emited', initialDay);
     this.$emit('select-day', initialDay);
 
     this.renderCarendar(this.calendarScope);

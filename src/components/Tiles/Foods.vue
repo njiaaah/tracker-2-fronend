@@ -9,7 +9,10 @@
 
   <slot v-if="!isOpened && !isLoading" name="preview">
     <div class="my-4 flex min-w-1/2 flex-wrap gap-2" v-auto-animate>
-      <table v-if="localData.length" class="table rounded-2xl overflow-clip ring-1 ring-gray-300">
+      <table
+        v-if="localData.length"
+        class="table overflow-clip rounded-2xl ring-1 ring-gray-300"
+      >
         <thead>
           <tr>
             <th>food</th>
@@ -23,7 +26,7 @@
           <td class="border-t-1 border-t-gray-200">{{ item.calories }}</td>
         </tr>
       </table>
-      <div v-else class="font-bold max-w-24 leading-5">
+      <div v-else class="max-w-24 leading-5 font-bold">
         no entries for today found
       </div>
 
@@ -141,25 +144,23 @@ export default {
         });
     },
     toggleVisibility() {
-      console.log('toggled')
-      if(this.foodListLimit === 5) {
-        this.foodListLimit = 99
-      } else this.foodListLimit = 5
+      if (this.foodListLimit === 5) {
+        this.foodListLimit = 99;
+      } else this.foodListLimit = 5;
     },
   },
   computed: {
     limitedData() {
-      console.log('computed updated?')
       return this.localData.slice(0, this.foodListLimit);
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
 .table {
   width: 100%;
-  
+
   tr {
     &:first-child {
       outline: 1px solid rgb(211, 211, 211);
@@ -174,7 +175,8 @@ export default {
         padding-left: 12px;
       }
     }
-    td:first-child::before, td:last-child::before {
+    td:first-child::before,
+    td:last-child::before {
       content: '';
       display: block;
       width: 8px;

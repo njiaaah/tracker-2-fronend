@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', {
     hash: ref(0),
     settings: ref(null),
     persist: true,
+    isLoggedIn: false,
   }),
   getters: {
     getUserId: (state) => state.user_id.value,

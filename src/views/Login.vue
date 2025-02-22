@@ -5,6 +5,8 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'vue-router';
+import Button from '../components/Items/Button.vue';
+import Input from '../components/Items/Input.vue';
 
 const router = useRouter();
 const store = useUserStore();
@@ -28,7 +30,8 @@ function login() {
     .then(function (response) {
       store.user_id = response.data.user_id;
       store.settings = response.data.settings;
-      Cookies.set('token', response.data.token, { secure: true, path: '/' });
+      store.isLoggedIn = true;
+      Cookies.set('token', response.data.token, { secure: false, path: '/', expires: 7 }); // expires in 7 days
       router.push({ name: 'user', params: { hash: response.data.hash } });
     })
     .catch(function (error) {
@@ -67,31 +70,24 @@ async function getHash() {
 
 <template>
   <main class="flex h-[100dvh] flex-col justify-end pb-4">
-    <form @submit.prevent="login" class="flex flex-col gap-4 p-4">
-      <input
-        placeholder="Почтовый адрес"
-        type="text"
-        class="mb-6 rounded-xl border-none p-4 text-2xl placeholder-gray-200 ring-2 ring-sky-500 outline-none"
+    <div class="h-full grid items-center align-center justify-center">
+      <img src="/logo.png" alt="logo" class="w-32 block self-center" />
+    </div>
+    <h1 class="text-2xl text-center mb-8">{{$t('signUp')}}</h1>
+    <form @submit.prevent="login" class="flex flex-col gap-4 px-8 mb-12">
+      <Input
+        :placeholder="$t('email')"
         v-model="email"
-        name="email"
-        required
+        @update:modelValue="email = $event"
       />
-
-      <input
-        placeholder="Пароль"
+      <Input
+        :placeholder="$t('password')"
         type="password"
-        class="mb-6 rounded-xl border-none p-4 text-2xl placeholder-gray-200 ring-2 ring-sky-500 outline-none"
         v-model="password"
-        name="password"
-        required
+        @update:modelValue="password = $event"
+        @keydown.enter="login"
       />
-
-      <button
-        type="submit"
-        class="rounded-2xl bg-sky-500 p-4 text-2xl text-white"
-      >
-        Вход
-      </button>
+      <Button type="submit" label="Вход"></Button>
     </form>
   </main>
 </template>

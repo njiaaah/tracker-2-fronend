@@ -20,6 +20,13 @@
         label = 'Add food for selected day';
       "
     />
+    <AddItem
+      :color="'bg-gray-500'"
+      icon="cog"
+      :isPlus="false"
+      :iconColor="'text-white'"
+      @click="emit('open-settings')"
+      />
   </div>
 
   <FormModal
@@ -60,7 +67,7 @@
 
 <script setup>
 import AddItem from './AddItem.vue';
-import { ref, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import FormModal from '../Tiles/FormModal.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../../stores/user';

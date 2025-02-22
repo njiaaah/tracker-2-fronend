@@ -4,6 +4,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedState from 'pinia-plugin-persistedstate';
 import autoAnimate from '@formkit/auto-animate';
+import i18n from './i18n.js';
 
 
 
@@ -25,6 +26,7 @@ app.directive('auto-animate', {
 
 app.use(createPinia().use(piniaPluginPersistedState));
 app.use(router);
+app.use(i18n);
 app.use(mdiVue, {
   icons: mdijs,
 });

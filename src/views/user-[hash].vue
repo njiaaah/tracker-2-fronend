@@ -1,65 +1,70 @@
 <template>
-  <div class="about flex h-screen w-screen flex-col p-4">
+  <main class="h-[100dvh] w-screen overflow-scroll">
+    <div class="about flex flex-col p-4 mb-24">
+      <p class="font-medium capitalize opacity-50">{{ formattedDate }}</p>
+      <h1 class="mb-4 text-3xl font-semibold opacity-75">Dashboard</h1>
 
-    <p class="font-medium opacity-50 capitalize">{{ formattedDate }}</p>
-    <h1 class="font-semibold text-3xl opacity-75 mb-4">Dashboard</h1>
+      <Calendar @select-day="selectDay" class="mb-4" />
 
-    <Calendar @select-day="selectDay" class="mb-4" />
+      <div class="mb-24 grid grid-cols-2 gap-4" ref="myWrapper" v-auto-animate>
+        <DashboardTile
+          v-for="(tile, index) in tiles"
+          :key="'tile-' + index"
+          :color="tile.color"
+          :isOpened="selectedTile === tile"
+          class="tile"
+          :class="[
+            tile.col ? tile.col : '',
+            tile.row ? tile.row : '',
+            !selectedTile || selectedTile === tile
+              ? 'featured-tile'
+              : 'hidden-tile',
+          ]"
+          :value="selectedDaysWeight"
+          v-auto-animate
+        >
+          <template v-slot:header v-auto-animate>
+            <div class="flex justify-start gap-2">
+              <mdicon :name="tile.icon" />
+              <p>{{ tile.heading }}</p>
+            </div>
+          </template>
 
-    <div
-      class="gap-4 grid grid-cols-2 mb-24"
-      ref="myWrapper"
-      v-auto-animate
-    >
-      <DashboardTile
-        v-for="(tile, index) in tiles"
-        :key="'tile-' + index"
-        :color="tile.color"
-        :isOpened="selectedTile === tile"
-        class="tile"
-        :class="[tile.col ? tile.col : '', tile.row ? tile.row : '',
-        !selectedTile || selectedTile === tile ? 'featured-tile' : 'hidden-tile']"
-        :value="selectedDaysWeight"
-        v-auto-animate
-      >
-        <template v-slot:header v-auto-animate>
-          <div class="flex justify-start gap-2">
-            <mdicon
-              :name="tile.icon"
-            />
-            <p>{{ tile.heading }}</p>
-          </div>
-        </template>
+          <template v-slot:default>
+            <component
+              v-auto-animate
+              :is="tile.component"
+              :isOpened="selectedTile === tile"
+              :user-id="user_id"
+              :selected-day="selectedDay"
+              :a-week-before-day="aWeekBeforeDay"
+              :new-item="newItem"
+              :goal="settings?.goal ? settings?.goal : 2000"
+              @emit-todays-foods="emitTodaysFoods"
+              :calories-today="caloriesToday"
+              :new-weight="newWeight"
+              :color="tile.color"
+              :isLoggedIn="store.isLoggedIn"
+              class="flex h-full flex-col"
+            >
+              <template v-slot:preview></template>
 
-        <template v-slot:default>
-          <component
-            v-auto-animate
-            :is="tile.component"
-            :isOpened="selectedTile === tile"
-            :user-id="user_id"
-            :selected-day="selectedDay"
-            :a-week-before-day="aWeekBeforeDay"
-            :new-item="newItem"
-            :goal="settings.goal"
-            @emit-todays-foods="emitTodaysFoods"
-            :calories-today="caloriesToday"
-            :new-weight="newWeight"
-            class="flex h-full flex-col"
-          >
-            <template v-slot:preview></template>
+              <template v-slot:full></template>
+            </component>
+          </template>
+        </DashboardTile>
+      </div>
 
-            <template v-slot:full></template>
-          </component>
-        </template>
-      </DashboardTile>
+      <Footer v-if="store.isLoggedIn" :selected-day="selectedDay" @submit="handleSubmit" @open-settings="isSlidePanelOpen = true" />
     </div>
 
-    <Footer :selected-day="selectedDay" @submit="handleSubmit" />
-  </div>
+    <SlidePanel :isOpen="isSlidePanelOpen" @close="isSlidePanelOpen = false"></SlidePanel>
+  </main>
 </template>
 
 <script setup>
 import { onMounted, ref, reactive, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import DashboardTile from '../components/DashboardTile.vue';
@@ -70,7 +75,8 @@ import Weight from '../components/Tiles/Weight.vue';
 import Goal from '../components/Tiles/Goal.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
-import { useNow, useDateFormat } from '@vueuse/core'
+import { useNow, useDateFormat } from '@vueuse/core';
+import SlidePanel from '../components/SlidePanel/Component.vue';
 
 const store = useUserStore();
 const { user_id, settings } = storeToRefs(store);
@@ -83,6 +89,8 @@ const newItem = ref('placeholder');
 const caloriesToday = ref(0);
 const newWeight = ref(0);
 const formattedDate = ref('');
+const isSlidePanelOpen = ref(false);
+const isLoggedIn = ref(false);
 const tiles = ref([
   {
     icon: 'Weight',
@@ -113,9 +121,28 @@ const tiles = ref([
 const now = useNow();
 const selectedDay = ref(null);
 const aWeekBeforeDay = ref(null);
-formattedDate.value = useDateFormat(now, 'dddd DD.MM.YYYY', {locales: 'en'}).value;
+const hash = ref(null);
+const router = useRouter();
+
+formattedDate.value = useDateFormat(now, 'dddd DD.MM.YYYY', {
+  locales: 'en',
+}).value;
 axios.defaults.headers.common['Authorization'] =
   'Bearer ' + Cookies.get('token');
+
+console.log('is logged in? ', store.isLoggedIn);
+
+hash.value = router.currentRoute.value.params.hash;
+if (false) {
+  axios
+    .get(apiUrl + '/user-id-by-hash/' + hash.value)
+    .then((response) => {
+      store.user_id.value = response.data.user_id;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 function handleSubmit(data, type) {
   if (type === 'weight') {
@@ -126,7 +153,6 @@ function handleSubmit(data, type) {
   }
 }
 
-
 function selectDay(dayAndWeekBefore) {
   selectedDay.value = dayAndWeekBefore.formattedDate;
   aWeekBeforeDay.value = dayAndWeekBefore.weekBeforeDay;
@@ -135,13 +161,11 @@ function selectDay(dayAndWeekBefore) {
 function emitTodaysFoods(data) {
   caloriesToday.value = data.reduce((acc, item) => acc + item.calories, 0);
 }
-
 </script>
 
 <style scoped>
-
 .tile {
-  transition: opacity .5s ease;
+  transition: opacity 0.5s ease;
 }
 .featured-tile {
   order: -1;
@@ -152,5 +176,4 @@ function emitTodaysFoods(data) {
   opacity: 0;
   user-select: none;
 }
-
 </style>
