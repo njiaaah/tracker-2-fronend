@@ -24,7 +24,7 @@ jobs:
 
     - name: SSH into server, pull latest code, build, and deploy
       run: |
-        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           # Navigate to the trackerfrontend directory
           cd /trackerfrontend || exit
           # Pull the latest changes from the repo
@@ -38,4 +38,4 @@ jobs:
 
     - name: Restart Nginx
       run: |
-        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'sudo systemctl restart nginx'
+        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'sudo systemctl restart nginx'
