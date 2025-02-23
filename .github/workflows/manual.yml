@@ -20,12 +20,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd trackerfrontend  # Adjust path if needed
         npm install
 
     - name: Build the frontend
       run: |
-        cd trackerfrontend  # Adjust path if needed
         npm run build
 
     - name: Set up SSH agent
@@ -39,7 +37,7 @@ jobs:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        rsync -avz --delete ./trackerfrontend/dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
+        rsync -avz --delete ./dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
 
     - name: Restart Nginx
       env:
