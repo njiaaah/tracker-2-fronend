@@ -5,28 +5,20 @@
     <AddItem
       :color="'bg-sky-500'"
       icon="scale-balance"
-      @click="
-        isModalVisible = !isModalVisible;
-        formType = 'user_weights';
-        label = 'Add weight for selected day';
-      "
+      @click="toggleModal('user_weights', 'Add weight for selected day')"
     />
     <AddItem
       :color="'bg-green-500'"
       icon="food"
-      @click="
-        isModalVisible = true;
-        formType = 'food_logs';
-        label = 'Add food for selected day';
-      "
+      @click="toggleModal('food_logs', 'Add food for selected day')"
     />
     <AddItem
       :color="'bg-gray-500'"
       icon="cog"
       :isPlus="false"
       :iconColor="'text-white'"
-      @click="emit('open-settings')"
-      />
+      @click="openSettings"
+    />
   </div>
 
   <FormModal
@@ -65,7 +57,7 @@
   </FormModal>
 </template>
 
-<script setup>
+<script>
 import AddItem from './AddItem.vue';
 import { ref, watch } from 'vue';
 import FormModal from '../Tiles/FormModal.vue';
@@ -73,64 +65,80 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '../../stores/user';
 import axios from 'axios';
 
-const store = useUserStore();
-const { user_id } = storeToRefs(store);
-const isModalVisible = ref(false);
-const formType = ref('user_weights');
-const label = ref('Add weight for selected day');
-const url = ref('weight');
-const props = defineProps(['selectedDay']);
-const selectedDay = ref(props.selectedDay);
-const user_weight = ref('');
-const food = ref('');
-const calories = ref('');
-const food_weight = ref('');
-const apiUrl = import.meta.env.VITE_API_URL;
-let data = {};
-const emit = defineEmits(['submit']);
-let submitType = ref('');
-
-watch(
-  () => props.selectedDay,
-  (val) => {
-    if (!val) return;
-    selectedDay.value = val;
+export default {
+  components: {
+    AddItem,
+    FormModal,
   },
-  { immediate: true },
-);
-
-function submit() {
-  if (formType.value === 'user_weights' && user_weight.value) {
-    submitType.value = 'weight';
-    data = {
-      user_id: user_id.value,
-      date: selectedDay.value,
-      weight: user_weight.value,
+  props: ['selectedDay', 'isModalVisible'],
+  data() {
+    return {
+      store: useUserStore(),
+      isModalVisible: false,
+      formType: 'user_weights',
+      label: 'Add weight for selected day',
+      selectedDay: this.selectedDay,
+      user_weight: '',
+      food: '',
+      calories: '',
+      food_weight: '',
+      apiUrl: import.meta.env.VITE_API_URL,
+      submitType: '',
     };
-    actualSubmit();
-  }
-  if (formType.value === 'food_logs' && food.value && calories.value) {
-    submitType.value = 'food';
-    data = {
-      user_id: user_id.value,
-      date: selectedDay.value,
-      name: food.value,
-      calories: calories.value,
-      weight: food_weight.value,
-    };
-    actualSubmit();
-  }
-}
-
-async function actualSubmit() {
-  axios
-    .post(apiUrl + '/' + formType.value, data)
-    .then(function (response) {
-      emit('submit', data, submitType.value);
-      isModalVisible.value = false;
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
+  },
+  computed: {
+    user_id() {
+      return this.store.user_id;
+    },
+  },
+  watch: {
+    selectedDay(val) {
+      if (val) {
+        this.selectedDay = val;
+      }
+    },
+  },
+  methods: {
+    toggleModal(formType, label) {
+      this.isModalVisible = !this.isModalVisible;
+      this.formType = formType;
+      this.label = label;
+    },
+    openSettings() {
+      this.$emit('open-settings');
+    },
+    submit() {
+      let data = {};
+      if (this.formType === 'user_weights' && this.user_weight) {
+        this.submitType = 'weight';
+        data = {
+          user_id: this.user_id,
+          date: this.selectedDay,
+          weight: this.user_weight,
+        };
+        this.actualSubmit(data);
+      }
+      if (this.formType === 'food_logs' && this.food && this.calories) {
+        this.submitType = 'food';
+        data = {
+          user_id: this.user_id,
+          date: this.selectedDay,
+          name: this.food,
+          calories: this.calories,
+          weight: this.food_weight,
+        };
+        this.actualSubmit(data);
+      }
+    },
+    async actualSubmit(data) {
+      try {
+        await axios.post(this.apiUrl + '/' + this.formType, data);
+        this.$emit('submit', data, this.submitType);
+        this.isModalVisible = false;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+};
 </script>

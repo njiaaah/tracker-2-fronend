@@ -25,7 +25,6 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 
 const props = defineProps(['label', 'modelValue']);
 const emit = defineEmits(['update:modelValue']);
