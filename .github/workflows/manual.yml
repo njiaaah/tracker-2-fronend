@@ -26,9 +26,17 @@ jobs:
       run: |
         npm run build
 
-    - name: Check if dist directory exists
+    - name: List project directory
       run: |
-        ls -alh ./dist
+        ls -alh  # List the contents of the current directory to find where the build output is
+
+    - name: List contents of dist folder if it exists
+      run: |
+        if [ -d "./dist" ]; then
+          ls -alh ./dist
+        else
+          echo "No dist folder found"
+        fi
 
     - name: Install sshpass
       run: |
@@ -56,4 +64,4 @@ jobs:
         SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
       run: |
         # Restart nginx using password authentication with sshpass
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl r
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
