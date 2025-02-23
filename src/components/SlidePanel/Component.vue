@@ -3,6 +3,7 @@
     <!-- backdrop -->
     <div
       class="backdrop absolute top-0 left-0 h-full w-full bg-black opacity-25"
+      @click="$emit('close')"
     ></div>
     <div
       class="panel absolute bottom-0 left-0 w-full 

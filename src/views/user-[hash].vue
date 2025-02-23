@@ -1,6 +1,6 @@
 <template>
   <main class="h-[100dvh] w-screen overflow-scroll">
-    <div class="about flex flex-col p-4 mb-24">
+    <div class="about mb-24 flex flex-col p-4">
       <p class="font-medium capitalize opacity-50">{{ formattedDate }}</p>
       <h1 class="mb-4 text-3xl font-semibold opacity-75">Dashboard</h1>
 
@@ -45,6 +45,7 @@
               :new-weight="newWeight"
               :color="tile.color"
               :isLoggedIn="store.isLoggedIn"
+              @open-add-weight-modal="openFooterModal"
               class="flex h-full flex-col"
             >
               <template v-slot:preview></template>
@@ -55,15 +56,29 @@
         </DashboardTile>
       </div>
 
-      <Footer v-if="store.isLoggedIn" :selected-day="selectedDay" @submit="handleSubmit" @open-settings="isSlidePanelOpen = true" />
+      <!-- <Footer
+        v-if="store.isLoggedIn"
+        :selected-day="selectedDay"
+        @submit="handleSubmit"
+        @open-settings="isSlidePanelOpen = true"
+      /> -->
+      <BottomMenu
+      
+      @open-slide-panel="handlePanelOpen"
+
+      />
     </div>
 
-    <SlidePanel :isOpen="isSlidePanelOpen" @close="isSlidePanelOpen = false"></SlidePanel>
+    <SlidePanel
+      :isOpen="isSlidePanelOpen"
+      @close="isSlidePanelOpen = false"
+      :type="slidePanelType"
+    ></SlidePanel>
   </main>
 </template>
 
 <script setup>
-import { onMounted, ref, reactive, nextTick } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -73,6 +88,7 @@ import Foods from '../components/Tiles/Foods.vue';
 import Footer from '../components/Footer/Index.vue';
 import Weight from '../components/Tiles/Weight.vue';
 import Goal from '../components/Tiles/Goal.vue';
+import BottomMenu from '../components/BottomMenu/Component.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
 import { useNow, useDateFormat } from '@vueuse/core';
@@ -133,16 +149,6 @@ axios.defaults.headers.common['Authorization'] =
 console.log('is logged in? ', store.isLoggedIn);
 
 hash.value = router.currentRoute.value.params.hash;
-if (false) {
-  axios
-    .get(apiUrl + '/user-id-by-hash/' + hash.value)
-    .then((response) => {
-      store.user_id.value = response.data.user_id;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
 
 function handleSubmit(data, type) {
   if (type === 'weight') {
@@ -153,6 +159,10 @@ function handleSubmit(data, type) {
   }
 }
 
+function openFooterModal(type, label) {
+  console.log(type, label);
+}
+
 function selectDay(dayAndWeekBefore) {
   selectedDay.value = dayAndWeekBefore.formattedDate;
   aWeekBeforeDay.value = dayAndWeekBefore.weekBeforeDay;
@@ -160,6 +170,11 @@ function selectDay(dayAndWeekBefore) {
 
 function emitTodaysFoods(data) {
   caloriesToday.value = data.reduce((acc, item) => acc + item.calories, 0);
+}
+
+function handlePanelOpen(type, data) {
+  console.log(type, data);
+  isSlidePanelOpen.value = true;
 }
 </script>
 

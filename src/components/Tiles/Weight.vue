@@ -48,7 +48,7 @@
             <div
               class="grid min-h-10 min-w-10 items-center justify-center rounded-2xl bg-lime-400"
             >
-              <mdicon name="plus" class="scale-100 text-white" />
+              <mdicon @click="$emit('open-add-weight-modal', 'user_weights', 'Add weight for selected day')" name="plus" class="scale-100 text-white" />
             </div>
           </div>
         </div>
@@ -67,6 +67,7 @@ import { useNow, useDateFormat } from '@vueuse/core';
 import Button from '../Items/Button.vue';
 
 const isLoaded = ref(false);
+const emits = defineEmits(['open-add-weight-modal']);
 
 const props = defineProps([
   'weightSelected',
