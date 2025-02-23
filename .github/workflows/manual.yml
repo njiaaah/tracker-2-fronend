@@ -24,12 +24,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd trackerfrontend  # Adjust path if needed
         npm install
 
     - name: Build the frontend
       run: |
-        cd trackerfrontend  # Adjust path if needed
         npm run build
 
     - name: Copy dist folder to server
