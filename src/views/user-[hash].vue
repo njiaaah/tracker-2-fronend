@@ -1,141 +1,179 @@
 <template>
-  <div class="about p-4 flex flex-col gap-4 h-screen w-screen">
+  <main class="h-[100dvh] w-screen overflow-scroll">
+    <div class="about flex flex-col p-4 mb-24">
+      <p class="font-medium capitalize opacity-50">{{ formattedDate }}</p>
+      <h1 class="mb-4 text-3xl font-semibold opacity-75">Dashboard</h1>
 
-    <Calendar @select-day="selectDay" />
+      <Calendar @select-day="selectDay" class="mb-4" />
 
-    <h1></h1>
+      <div class="mb-24 grid grid-cols-2 gap-4" ref="myWrapper" v-auto-animate>
+        <DashboardTile
+          v-for="(tile, index) in tiles"
+          :key="'tile-' + index"
+          :color="tile.color"
+          :isOpened="selectedTile === tile"
+          class="tile"
+          :class="[
+            tile.col ? tile.col : '',
+            tile.row ? tile.row : '',
+            !selectedTile || selectedTile === tile
+              ? 'featured-tile'
+              : 'hidden-tile',
+          ]"
+          :value="selectedDaysWeight"
+          v-auto-animate
+        >
+          <template v-slot:header v-auto-animate>
+            <div class="flex justify-start gap-2">
+              <mdicon :name="tile.icon" />
+              <p>{{ tile.heading }}</p>
+            </div>
+          </template>
 
-    <div
-      class="grid grid-cols-2 gap-4  outline-1"
-      :class="[isItemSelected ? 'h-screen' : '']"
-      ref="myWrapper"
-      v-auto-animate
-    >
-      <DashboardTile
-        v-for="(tile, index) in tiles"
-        v-show="!selectedTile || selectedTile === tile"
-        :key="'tike-' + index"
-        :color="tile.color"
-        :isOpened="selectedTile === tile"
-        @click="selectItem(tile)"
-        :class="[tile.col ? tile.col : '', tile.row ? tile.row : '']"
-        v-auto-animate
-        
-      >
-        <template v-slot:header v-auto-animate>
-          <div class="flex justify-between">
-            <mdicon
-              class="order-1"
-              :name="selectedTile === tile ? 'close' : tile.icon"
-              @click.stop="closeTile"
-            />
-            <p>{{ tile.heading }}</p>
-          </div>
-        </template>
-        
+          <template v-slot:default>
+            <component
+              v-auto-animate
+              :is="tile.component"
+              :isOpened="selectedTile === tile"
+              :user-id="user_id"
+              :selected-day="selectedDay"
+              :a-week-before-day="aWeekBeforeDay"
+              :new-item="newItem"
+              :goal="settings?.goal ? settings?.goal : 2000"
+              @emit-todays-foods="emitTodaysFoods"
+              :calories-today="caloriesToday"
+              :new-weight="newWeight"
+              :color="tile.color"
+              :isLoggedIn="store.isLoggedIn"
+              class="flex h-full flex-col"
+            >
+              <template v-slot:preview></template>
 
-         <template v-slot:default>
-          
-          <component v-auto-animate :is="tile.component" :isOpened="selectedTile === tile" :user-id="user_id" :selected-day="selectedDay">
+              <template v-slot:full></template>
+            </component>
+          </template>
+        </DashboardTile>
+      </div>
 
-            <template v-slot:loading></template>
-
-            <template v-slot:preview></template>
-
-            <template v-slot:full></template>
-
-          </component>
-
-         </template>
-
-
-      </DashboardTile>
+      <Footer v-if="store.isLoggedIn" :selected-day="selectedDay" @submit="handleSubmit" @open-settings="isSlidePanelOpen = true" />
     </div>
 
-    <Footer v-auto-animate :selected-day="selectedDay" />
-  </div>
-
-
+    <SlidePanel :isOpen="isSlidePanelOpen" @close="isSlidePanelOpen = false"></SlidePanel>
+  </main>
 </template>
 
 <script setup>
 import { onMounted, ref, reactive, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '../stores/user';
 import DashboardTile from '../components/DashboardTile.vue';
 import Calendar from '../components/Calendar.vue';
 import Foods from '../components/Tiles/Foods.vue';
 import Footer from '../components/Footer/Index.vue';
-import router from '@/router';
+import Weight from '../components/Tiles/Weight.vue';
+import Goal from '../components/Tiles/Goal.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '../stores/user';
+import { useNow, useDateFormat } from '@vueuse/core';
+import SlidePanel from '../components/SlidePanel/Component.vue';
 
-axios.defaults.headers.common['Authorization'] =
-  'Bearer ' + Cookies.get('token');
-
+const store = useUserStore();
+const { user_id, settings } = storeToRefs(store);
+const apiUrl = import.meta.env.VITE_API_URL;
+const selectedTile = ref(null);
+const url = window.location.href;
+const selectedDaysWeight = ref(null);
+const isItemSelected = ref(false);
+const newItem = ref('placeholder');
+const caloriesToday = ref(0);
+const newWeight = ref(0);
+const formattedDate = ref('');
+const isSlidePanelOpen = ref(false);
+const isLoggedIn = ref(false);
 const tiles = ref([
   {
     icon: 'Weight',
     heading: 'Weight',
-    color: 'bg-green-500',
+    color: 'text-lime-500',
+    component: Weight,
   },
   {
     icon: 'flag-checkered',
     heading: 'Goal',
-    color: 'bg-violet-300',
+    color: 'text-purple-300',
     row: 'row-span-2',
+    component: Goal,
   },
   {
-    icon: 'Weight',
-    heading: 'Weight',
-    color: 'bg-green-500',
+    icon: 'flag-checkered',
+    heading: 'Goal',
+    color: 'text-sky-300',
   },
   {
     icon: 'food',
     heading: 'Food',
-    color: 'bg-yellow-500',
+    color: 'text-yellow-400',
     col: 'col-span-2',
     component: Foods,
   },
 ]);
+const now = useNow();
+const selectedDay = ref(null);
+const aWeekBeforeDay = ref(null);
+const hash = ref(null);
+const router = useRouter();
 
-const store = useUserStore();
-const { user_id } = storeToRefs(store);
-const apiUrl = import.meta.env.VITE_API_URL;
-const token = Cookies.get('token');
-const foodLogs = ref(null);
-const selectedTile = ref(null);
-const selectedDay = ref(new Date().toISOString().split('T')[0]); // Alternative fix
-const url = window.location.href;
-const selectedDaysWeight = ref(null);
+formattedDate.value = useDateFormat(now, 'dddd DD.MM.YYYY', {
+  locales: 'en',
+}).value;
+axios.defaults.headers.common['Authorization'] =
+  'Bearer ' + Cookies.get('token');
 
-function selectItem(tile) {
-  selectedTile.value = selectedTile.value === tile ? tile : tile;
+console.log('is logged in? ', store.isLoggedIn);
+
+hash.value = router.currentRoute.value.params.hash;
+if (false) {
+  axios
+    .get(apiUrl + '/user-id-by-hash/' + hash.value)
+    .then((response) => {
+      store.user_id.value = response.data.user_id;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }
 
-function closeTile() {
-  nextTick(() => {
-    selectedTile.value = null;
-  });
+function handleSubmit(data, type) {
+  if (type === 'weight') {
+    newWeight.value = data;
+  }
+  if (type === 'food') {
+    newItem.value = data;
+  }
 }
 
-function selectDay(day) {
-  selectedDay.value = day;
+function selectDay(dayAndWeekBefore) {
+  selectedDay.value = dayAndWeekBefore.formattedDate;
+  aWeekBeforeDay.value = dayAndWeekBefore.weekBeforeDay;
 }
 
-onMounted(async () => {
-  console.log('today is ', selectedDay.value)
-  // console.log('login id',user_id.value)
-  axios.get(apiUrl + '/user_weights', { params: { user_id: user_id.value, start_date: selectedDay.value, end_date: selectedDay.value } })
-  .then(function (response) {
-    selectedDaysWeight.value = response.data[0].weight;
-    console.log(selectedDaysWeight.value)
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-});
-
+function emitTodaysFoods(data) {
+  caloriesToday.value = data.reduce((acc, item) => acc + item.calories, 0);
+}
 </script>
 
-<style></style>
+<style scoped>
+.tile {
+  transition: opacity 0.5s ease;
+}
+.featured-tile {
+  order: -1;
+  grid-row: 0 /3;
+  grid-column: 0 / 2;
+}
+.hidden-tile {
+  opacity: 0;
+  user-select: none;
+}
+</style>

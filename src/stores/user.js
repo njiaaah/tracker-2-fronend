@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
   persist: true, // enable persistence
@@ -8,9 +8,10 @@ export const useUserStore = defineStore('user', {
     hash: ref(0),
     settings: ref(null),
     persist: true,
+    isLoggedIn: false,
   }),
   getters: {
     getUserId: (state) => state.user_id.value,
     getHash: (state) => state.hash.value,
   },
-})
+});
