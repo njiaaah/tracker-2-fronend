@@ -26,28 +26,24 @@ jobs:
       run: |
         npm run build
 
-    - name: Set up SSH key
+    - name: Install sshpass
       run: |
-        mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        # Optional: If you have a known_hosts file
-        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-        chmod 644 ~/.ssh/known_hosts
+        sudo apt-get install sshpass  # Install sshpass for password-based SSH
 
-    - name: Copy dist folder to server
+    - name: Copy dist folder to server using password
       env:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}  # Store your password in GitHub Secrets
       run: |
-        # Add your server IP and user credentials
-        rsync -avz --delete ./dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
-
+        # Use sshpass to provide the password for SSH authentication
+        sshpass -p "$SSH_PASSWORD" rsync -avz --delete ./dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
+    
     - name: Restart Nginx
       env:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
       run: |
-        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
+        # Restart nginx using password authentication with sshpass
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
