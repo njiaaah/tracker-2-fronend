@@ -47,4 +47,9 @@ jobs:
 
     - name: Restart Nginx
       env:
-        SERVER_IP: ${{ secrets.SERVER_I
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+      run: |
+        # Restart nginx using password authentication with sshpass
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
