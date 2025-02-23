@@ -13,31 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2  # Check out the code from the repo
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'  # Set the node version you’re using
-
-    - name: Install dependencies
-      run: |
-        npm install
-
-    - name: Build the frontend
-      run: |
-        npm run build
-
-    - name: List project directory
-      run: |
-        ls -alh  # List the contents of the current directory to find where the build output is
-
-    - name: List contents of dist folder if it exists
-      run: |
-        if [ -d "./dist" ]; then
-          ls -alh ./dist
-        else
-          echo "No dist folder found"
-        fi
-
     - name: Install sshpass
       run: |
         sudo apt-get install sshpass  # Install sshpass for password-based SSH
@@ -46,22 +21,21 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-        chmod 644 ~/.ssh/known_hosts
 
-    - name: Copy dist folder to server using password
-      env:
-        SERVER_IP: ${{ secrets.SERVER_IP }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}  # Store your password in GitHub Secrets
+    - name: SSH into server, pull latest code, build, and deploy
       run: |
-        # Use sshpass to provide the password for SSH authentication
-        sshpass -p "$SSH_PASSWORD" rsync -avz --delete ./dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
+        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          # Navigate to the trackerfrontend directory
+          cd /trackerfrontend || exit
+          # Pull the latest changes from the repo
+          git pull origin main || exit
+          # Install dependencies and build the project
+          npm install || exit
+          npm run build || exit
+          # Copy dist folder to Nginx directory
+          rsync -avz --delete ./dist/ /var/www/html/ || exit
+        EOF
 
     - name: Restart Nginx
-      env:
-        SERVER_IP: ${{ secrets.SERVER_IP }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
       run: |
-        # Restart nginx using password authentication with sshpass
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
+        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'sudo systemctl restart nginx'
