@@ -30,6 +30,12 @@ jobs:
       run: |
         sudo apt-get install sshpass  # Install sshpass for password-based SSH
 
+    - name: Add server to known hosts to bypass SSH verification
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+
     - name: Copy dist folder to server using password
       env:
         SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -38,12 +44,7 @@ jobs:
       run: |
         # Use sshpass to provide the password for SSH authentication
         sshpass -p "$SSH_PASSWORD" rsync -avz --delete ./dist/ $SERVER_USER@$SERVER_IP:/var/www/html/
-    
+
     - name: Restart Nginx
       env:
-        SERVER_IP: ${{ secrets.SERVER_IP }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-      run: |
-        # Restart nginx using password authentication with sshpass
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
+        SERVER_IP: ${{ secrets.SERVER_I
