@@ -22,6 +22,7 @@
       <Button label="Вход"></Button>
     </button>
     </form>
+    <span class="text-center opacity-25">0.1.0</span>
   </main>
 </template>
 
