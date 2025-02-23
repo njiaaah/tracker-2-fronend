@@ -26,6 +26,10 @@ jobs:
       run: |
         npm run build
 
+    - name: Check if dist directory exists
+      run: |
+        ls -alh ./dist
+
     - name: Install sshpass
       run: |
         sudo apt-get install sshpass  # Install sshpass for password-based SSH
@@ -52,4 +56,4 @@ jobs:
         SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
       run: |
         # Restart nginx using password authentication with sshpass
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl restart nginx'
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP 'sudo systemctl r
