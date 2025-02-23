@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2  # Check out the code from the repo
+      uses: actions/checkout@v2  # Check out the code from the rep
 
     - name: Install sshpass
       run: |
