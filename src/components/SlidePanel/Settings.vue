@@ -1,7 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    <div>Settings</div>
-
     <!-- <div v-for="(key, index) in Object.keys(localSettings)">
       <div>{{ key }}</div>
       <Input v-model="localSettings[key]" />

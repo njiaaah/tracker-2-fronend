@@ -79,6 +79,7 @@ const props = defineProps([
   'aWeekBeforeDay',
   'color',
   'isLoggedIn',
+  'weightFromSubmit',
 ]);
 const apiUrl = import.meta.env.VITE_API_URL;
 const user_id = ref(jsCookie.get('user_id'));
@@ -143,8 +144,11 @@ async function getSelectedWeight() {
 watch(
   () => props.newWeight,
   (val) => {
+    console.log('prop weight', val);
+    // =-)
+    getSelectedWeight()
     val !== selectedDaysWeight.value
-      ? (selectedDaysWeight.value = val.weight)
+      ? (selectedDaysWeight.value = val)
       : null;
   },
 );

@@ -1,9 +1,12 @@
 <template>
-  <div>
-    <div class="bg-sky-500 text-white rounded-lg p-4 text-center w-full ">
+  <button :type="type">
+    <div
+      :class="color"
+      class="rounded-lg p-4 text-center w-full text-white"
+    >
       {{ label ? label : 'button' }}
     </div>
-  </div>
+  </button>
 </template>
 
 <script>
@@ -16,6 +19,14 @@ export default {
     label: {
       type: String,
       default: 'button',
+    },
+    type: {
+      type: String,
+      default: 'text',
+    },
+    color: {
+      type: String,
+      default: 'bg-sky-500',
     }
   },
 };
