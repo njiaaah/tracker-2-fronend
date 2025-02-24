@@ -17,18 +17,23 @@
 </template>
 
 <script>
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '../../stores/user';
+
 export default {
   name: 'BottomMenu',
   data() {
     return {
+      store: useUserStore(),
       items: [
         {
           name: 'Add weight',
           icon: 'weight',
           emit: 'openSlidePanel',
+          label: 'Add weight for selected day',
           ref: 'weight',
           emitData: {
-            formType: 'user_weights',
+            url: '/user_weights',
             label: 'Add weight for selected day',
             inputs: [
                 {
@@ -45,13 +50,19 @@ export default {
           icon: 'food',
           emit: 'openSlidePanel',
           emitData: {
-            formType: 'food_logs',
+            url: '/food_logs',
             label: 'Add food for selected day',
             inputs: [
                 {
-                    name: 'food',
+                    name: 'name',
                     type: 'text',
                     placeholder: 'Food',
+                    required: true
+                },
+                {
+                    name: 'weight',
+                    type: 'number',
+                    placeholder: 'Weight',
                     required: true
                 },
                 {
@@ -79,6 +90,18 @@ export default {
           name: 'Settings',
           icon: 'cog',
           emit: 'openSlidePanel',
+          emitData: {
+            url: '/update-settings',
+            label: 'Settings',
+            inputs: [
+                {
+                    name: 'goal',
+                    type: 'text',
+                    placeholder: 'goal',
+                    required: true,
+                }
+            ]
+          }
         },
       ],
     };
@@ -86,7 +109,7 @@ export default {
   methods: {},
   computed: {},
   mounted() {
-    this.$refs.weight[0].click() 
+    console.log(this.store.settings)
   },
 };
 </script>

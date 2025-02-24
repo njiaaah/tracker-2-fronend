@@ -20,7 +20,7 @@
             <th>calories</th>
           </tr>
         </thead>
-        <tr v-for="(item, index) in limitedData">
+        <tr v-for="(item, index) in limitedData" @click="$emit('delete-item', item)">
           <td class="border-t-1 border-t-gray-200">{{ item.name }}</td>
           <td class="border-t-1 border-t-gray-200">{{ item.weight }}</td>
           <td class="border-t-1 border-t-gray-200">{{ item.calories }}</td>
@@ -67,6 +67,8 @@
       </ul>
     </div>
   </slot>
+
+  <slide-panel v-if="isSlidePanelOpen" />
 </template>
 
 <script>
@@ -74,11 +76,13 @@ import axios from 'axios';
 import jsCookie from 'js-cookie';
 import Badge from '../Items/Badge.vue';
 import { ref, watch, onMounted } from 'vue';
+import SlidePanel from '../SlidePanel/Component.vue';
 
 export default {
-  name: 'YourComponentName', // Replace with your component name
+  name: 'Foods', 
   components: {
     Badge,
+    SlidePanel
   },
   props: {
     isOpened: { type: Boolean, default: false },
@@ -91,6 +95,8 @@ export default {
     },
     data: { type: Array, default: () => [] },
     newItem: { type: Object, default: () => {} },
+    updateComponent: { type: Number, default: 0 },
+
   },
   emits: ['emit-todays-foods'],
   data() {
@@ -101,9 +107,16 @@ export default {
       isLoadingLocal: true,
       localData: this.data,
       foodListLimit: 5,
+      isSlidePanelOpen: false,
     };
   },
   watch: {
+    updateComponent: {
+      handler(val) {
+        console.log('update component', val);
+        this.getUserFood(this.selectedDay);
+      },
+    },
     selectedDay: {
       handler(newDay) {
         if (!newDay) return;

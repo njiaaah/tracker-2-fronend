@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n';
+import Weight from './components/Tiles/Weight.vue';
 
 const messages = {
   en: {
@@ -9,6 +10,11 @@ const messages = {
     signIn: 'Sign In',
     noWeightEntry: 'Add weight for this day',
     logout: 'Logout',
+    addWeight: 'Add weight',
+    addFood: 'Add food',
+    settings: 'Settings',
+    weight: 'Weight',
+    food: 'Food',
   },
   ru: {
     email: 'Почта',
@@ -18,6 +24,11 @@ const messages = {
     signIn: 'Войти',
     noWeightEntry: 'Добавить вес для этого дня',
     logout: 'Выйти',
+    addWeight: 'Добавить вес',
+    addFood: 'Добавить продукт',
+    settings: 'Настройки',
+    weight: 'Вес',
+    food: 'Продукт',
   },
 };
 
