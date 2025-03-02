@@ -14,7 +14,9 @@ const messages = {
     addFood: 'Add food',
     settings: 'Settings',
     weight: 'Weight',
+    foods: 'Food',
     food: 'Food',
+    goal: 'Goal'
   },
   ru: {
     email: 'Почта',
@@ -28,7 +30,9 @@ const messages = {
     addFood: 'Добавить продукт',
     settings: 'Настройки',
     weight: 'Вес',
+    foods: 'Продукты',
     food: 'Продукт',
+    goal: 'Цель',
   },
 };
 

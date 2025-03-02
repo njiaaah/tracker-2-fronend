@@ -132,25 +132,21 @@ const { t } = useI18n();
 const tiles = ref([
   {
     icon: 'Weight',
-    heading: 'Weight',
+    heading: t('weight'),
     color: 'text-lime-500',
+    row: 'row-span-2',
     component: Weight,
   },
   {
     icon: 'flag-checkered',
-    heading: 'Goal',
+    heading: t('goal'),
     color: 'text-purple-300',
     row: 'row-span-2',
     component: Goal,
   },
   {
-    icon: 'flag-checkered',
-    heading: 'Goal',
-    color: 'text-sky-300',
-  },
-  {
     icon: 'food',
-    heading: t('Food'),
+    heading: t('food'),
     color: 'text-yellow-400',
     col: 'col-span-2',
     component: Foods,
