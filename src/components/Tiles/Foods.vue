@@ -16,15 +16,20 @@
         <thead>
           <tr>
             <th>food</th>
-            <th>weight</th>
+            <!-- <th>weight</th> -->
             <th>calories</th>
           </tr>
         </thead>
-        <tr v-for="(item, index) in limitedData" @click="$emit('delete-item', item)">
-          <td class="border-t-1 border-t-gray-200">{{ item.name }}</td>
-          <td class="border-t-1 border-t-gray-200">{{ item.weight }}</td>
-          <td class="border-t-1 border-t-gray-200">{{ item.calories }}</td>
-        </tr>
+        <transition-group name="list">
+          <tr v-for="(item, index) in limitedData" @click="$emit('delete-item', item)">
+            <td class="border-t-1 border-t-gray-200">
+              {{ item.name }} 
+              <span v-if="item.count > 1">({{ item.count }})</span>
+            </td>
+            <!-- <td class="border-t-1 border-t-gray-200">{{ item.weight }}</td> -->
+            <td class="border-t-1 border-t-gray-200">{{ item.calories }}</td>
+          </tr>
+        </transition-group>
       </table>
       <div v-else class="max-w-24 leading-5 font-bold">
         no entries for today found
@@ -32,10 +37,10 @@
 
       <div
         class="mt-2 w-full font-bold underline"
-        v-show="localData.length > 5"
+        v-show="localData.length > foodListLimit"
         @click="toggleVisibility"
       >
-        {{ localData.length - 5 }} more
+        {{ localData.length - foodListLimit }} more
       </div>
     </div>
   </slot>
@@ -52,7 +57,8 @@
           v-auto-animate
         >
           <div class="flex justify-between">
-            {{ item.name }}
+            {{ item.name }} 
+            <span v-if="item.count > 1">({{ item.count }})</span>
             {{ item.calories }}
           </div>
 
@@ -70,6 +76,7 @@
 
   <slide-panel v-if="isSlidePanelOpen" />
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -106,7 +113,7 @@ export default {
       confirm: false,
       isLoadingLocal: true,
       localData: this.data,
-      foodListLimit: 5,
+      foodListLimit: 10,
       isSlidePanelOpen: false,
     };
   },
@@ -164,7 +171,18 @@ export default {
   },
   computed: {
     limitedData() {
-      return this.localData.slice(0, this.foodListLimit);
+      const countItems = this.localData.reduce((acc, item) => {
+        const existingItem = acc.find(i => i.name === item.name);
+        if (existingItem) {
+          existingItem.count++;
+          existingItem.calories += item.calories;  // Combine calories
+        } else {
+          acc.push({ ...item, count: 1 });
+        }
+        return acc;
+      }, []);
+
+      return countItems.slice(0, this.foodListLimit);
     },
   },
 };
@@ -208,6 +226,16 @@ export default {
       right: 0;
     }
   }
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
 }
 
 </style>

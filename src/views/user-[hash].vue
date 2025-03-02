@@ -68,7 +68,7 @@
         <div class="flex gap-2 justify-between mb-4 " v-if="slidePanelFormData && slidePanelFormData.name === 'food'">
           <div v-for="(item, index) in popularFoods" :key="index"
             class="flex flex-col ring-1 ring-sky-600 rounded-lg text-xs p-2 max-w-1/5 overflow-clip 
-            text-ellipsis bg-sky-600"
+            text-ellipsis bg-sky-600 active:scale-90 transition-transform"
             @click="populateInputsWithPopularItem(item)" 
             >
 
