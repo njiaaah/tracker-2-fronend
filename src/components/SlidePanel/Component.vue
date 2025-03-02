@@ -9,7 +9,7 @@
     <div
       ref="panel"
       class="panel absolute bottom-0 left-0 w-full 
-      rounded-t-4xl bg-white px-4 py-8 starting:translate-y-full transition-all duration-200"
+      rounded-t-4xl bg-white dark:bg-gray-800 px-4 py-8 starting:translate-y-full transition-all duration-200"
     >
       <slot name="header">
         <div class="flex items-center justify-between gap-4 mb-12">
