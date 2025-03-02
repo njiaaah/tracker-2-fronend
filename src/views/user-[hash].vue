@@ -55,13 +55,6 @@
           </template>
         </DashboardTile>
       </div>
-
-      <!-- <Footer
-        v-if="store.isLoggedIn"
-        :selected-day="selectedDay"
-        @submit="handleSubmit"
-        @open-settings="isSlidePanelOpen = true"
-      /> -->
       <BottomMenu @open-slide-panel="handlePanelOpen" />
     </div>
 
@@ -125,18 +118,15 @@ import Button from '@/components/Items/Button.vue';
 import Settings from '../components/SlidePanel/Settings.vue';
 
 const store = useUserStore();
-const { user_id, settings } = storeToRefs(store);
+const { user_id } = storeToRefs(store);
 const apiUrl = import.meta.env.VITE_API_URL;
 const selectedTile = ref(null);
-const url = window.location.href;
 const selectedDaysWeight = ref(null);
-const isItemSelected = ref(false);
 const newItem = ref('placeholder');
 const caloriesToday = ref(0);
 const newWeight = ref(0);
 const formattedDate = ref('');
 const isSlidePanelOpen = ref(false);
-const isLoggedIn = ref(false);
 const { t } = useI18n();
 const tiles = ref([
   {

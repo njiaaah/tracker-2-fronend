@@ -49,6 +49,6 @@ watch(
   },
 );
 onMounted(() => {
-  console.log('goal local ' , settings.goal)
+  // console.log('goal local ' , settings.goal)
 })
 </script>
