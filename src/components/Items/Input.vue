@@ -1,10 +1,9 @@
 <template>
-  <div>{{subtype}}</div>
   <div class="relative">
-    <div v-if="subtype === 'amount'" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500">
+    <div v-if="subtype === 'amount'" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500 active:scale-90 transition-transform">
       <mdicon name="plus" :size="38" @click="increment"></mdicon>
     </div>
-    <div v-if="subtype === 'amount'" class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500">
+    <div v-if="subtype === 'amount'" class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500 active:scale-90 transition-transform">
       <mdicon name="minus" :size="38" @click="decrement"></mdicon>
     </div>
   <input
