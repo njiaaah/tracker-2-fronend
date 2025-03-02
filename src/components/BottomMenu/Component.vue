@@ -73,6 +73,15 @@ export default {
                     placeholder: 'Calories',
                     required: true,
                     value: '',
+                },
+                {
+                    name: 'amount',
+                    type: 'number',
+                    subtype: 'amount',
+                    placeholder: 'amount',
+                    required: false,
+                    value: 1,
+                    minmax: [1, 5]
                 }
             ]
           },

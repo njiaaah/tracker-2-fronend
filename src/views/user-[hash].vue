@@ -95,6 +95,8 @@
               :placeholder="input.name"
               :value="input.value"
               :type="input.type"
+              :subtype="input.subtype"
+              :minmax="input.minmax"
             />
           </div>
           <Button :type="'submit'" label="Save" />
@@ -174,6 +176,8 @@ const router = useRouter();
 const slidePanelFormData = ref(null);
 const updateComponent = ref(5);
 const foodItemToDelete = ref(null);
+
+console.log('store?', store);
 const goal = ref(store.settings.goal);
 
 formattedDate.value = useDateFormat(now, 'dddd DD.MM.YYYY', {
@@ -231,8 +235,8 @@ function handleSubmit(event) {
     .then(function () {
       newWeight.value = data.weight;
       slidePanelFormData.value = {};
-      store.settings = data.settings;
-      goal.value = data.settings.goal;
+      slidePanelFormData.value.label === 'Settings' ? store.settings = data.settings : null;
+      slidePanelFormData.value.label === 'Settings' ? goal.value = data.settings.goal : null;
       isSlidePanelOpen.value = false;
       updateComponent.value++;
     })
