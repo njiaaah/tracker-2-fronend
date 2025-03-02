@@ -65,6 +65,18 @@
       :label="slidePanelFormData?.label"
     >
       <template v-slot:default>
+        <div class="flex gap-2 justify-between mb-4 " v-if="slidePanelFormData && slidePanelFormData.name === 'food'">
+          <div v-for="(item, index) in popularFoods" :key="index"
+            class="flex flex-col ring-1 ring-sky-600 rounded-lg text-xs p-2 max-w-1/5 overflow-clip 
+            text-ellipsis bg-sky-600"
+            @click="populateInputsWithPopularItem(item)" 
+            >
+
+            <span>{{ item.name }}</span>
+            <span class="text-lg leading-5">{{ item.calories }}</span>
+
+          </div>
+        </div>
         <form
           v-if="
             slidePanelFormData && slidePanelFormData.label !== 'Delete item'
@@ -81,6 +93,8 @@
               :required="input.required"
               :name="input.name"
               :placeholder="input.name"
+              :value="input.value"
+              :type="input.type"
             />
           </div>
           <Button :type="'submit'" label="Save" />
@@ -244,6 +258,65 @@ function confirmDelete() {
     foodItemToDelete.value = null;
   }).catch(error => console.log(error));
 }
+
+// POPULAR FOODS
+
+const popularFoods = ref([]);
+
+function getPopularFoods() {
+  const end_date = new Date().toISOString().split("T")[0]; // Today
+  let start_date = new Date();
+  start_date.setDate(start_date.getDate() - 30);
+  start_date = start_date.toISOString().split("T")[0]; // 30 days ago
+
+  axios.get(apiUrl + "/food_logs", {
+    params: { user_id: user_id.value, start_date, end_date }
+  })
+  .then((response) => {
+    console.log(response.data);
+    popularFoods.value = getTopFiveFoods(response.data);
+    console.log(popularFoods.value);
+  })
+  .catch((error) => console.log(error));
+}
+
+const getTopFiveFoods = (data) => {
+  const foodCount = {};
+
+  data.forEach(({ name, calories, weight }) => {
+    const trimmedLowercasedName = name.trim().toLowerCase();
+    if (!foodCount[trimmedLowercasedName]) {
+      foodCount[trimmedLowercasedName] = { count: 1, calories, weight };
+    } else {
+      foodCount[trimmedLowercasedName].count += 1;
+      // Keep the lowest calories and weight
+      foodCount[trimmedLowercasedName].calories = Math.min(foodCount[trimmedLowercasedName].calories, calories);
+      foodCount[trimmedLowercasedName].weight = Math.min(foodCount[trimmedLowercasedName].weight, weight);
+    }
+  });
+
+  return Object.entries(foodCount)
+    .sort((a, b) => b[1].count - a[1].count)  // Sort by the count (frequency of name)
+    .slice(0, 5)  // Get top 5
+    .map(([name, { calories, weight }]) => ({
+      name,
+      calories,
+      weight,
+    }));
+};
+
+function populateInputsWithPopularItem(item) {
+  slidePanelFormData.value.inputs[0].value = item.name;
+  slidePanelFormData.value.inputs[1].value = item.calories;
+}
+
+
+
+
+onMounted(() => {
+  getPopularFoods()
+
+})
 </script>
 
 <style scoped>

@@ -51,24 +51,28 @@ export default {
           emitData: {
             url: '/food_logs',
             label: 'Add food for selected day',
+            name: 'food',
             inputs: [
                 {
                     name: 'name',
                     type: 'text',
                     placeholder: 'Food',
-                    required: true
+                    required: true,
+                    value: ''
                 },
-                {
-                    name: 'weight',
-                    type: 'number',
-                    placeholder: 'Weight',
-                    required: true
-                },
+                // {
+                //     name: 'weight',
+                //     type: 'number',
+                //     placeholder: 'Weight',
+                //     required: true,
+                //     value : ''
+                // },
                 {
                     name: 'calories',
                     type: 'number',
                     placeholder: 'Calories',
-                    required: true
+                    required: true,
+                    value: '',
                 }
             ]
           },

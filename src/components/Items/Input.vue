@@ -4,7 +4,7 @@
     :placeholder="placeholder"
     v-model="modelValue"
     :name="name"
-    @change="$emit('update:modelValue', $event.target.value)"
+    @input="$emit('update:modelValue', $event.target.value)"
     class="p-4 rounded-xl border-none outline-none ring-1 ring-sky-500 focus:ring-3 text-xl placeholder:opacity-50 w-full"
   />
 </template>
@@ -13,7 +13,9 @@
 export default {
   name: 'c-input',
   data() {
-    return {};
+    return {
+      modelValue: this.value,
+    };
   },
   props: {
     label: {
@@ -31,7 +33,19 @@ export default {
     name: {
       type: String,
       default: '',
-    }
+    },
+    value: {
+      type: [String, Number],
+      default: '',
+    },
+  },
+  watch: {
+    value(newValue) {
+      this.modelValue = newValue;
+    },
+    modelValue(newValue) {
+      this.$emit('update:modelValue', newValue);
+    },
   },
 };
 </script>
