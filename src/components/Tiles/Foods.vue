@@ -195,6 +195,9 @@ export default {
       width: 8px;
       height: 8px;
       background: white;
+      @media (prefers-color-scheme: dark) {
+        background: var(--color-gray-900);
+      }
       position: absolute;
       bottom: 0;
       left: 0;
@@ -206,4 +209,5 @@ export default {
     }
   }
 }
+
 </style>
