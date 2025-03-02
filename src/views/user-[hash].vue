@@ -46,6 +46,7 @@
               :isLoggedIn="store.isLoggedIn"
               :update-component="updateComponent"
               @delete-item="deleteItem"
+              :goal="goal"
               class="flex h-full flex-col"
             >
               <template v-slot:preview></template>
@@ -98,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -163,6 +164,7 @@ const router = useRouter();
 const slidePanelFormData = ref(null);
 const updateComponent = ref(5);
 const foodItemToDelete = ref(null);
+const goal = ref(store.settings.goal);
 
 formattedDate.value = useDateFormat(now, 'dddd DD.MM.YYYY', {
   locales: 'ru',
@@ -220,7 +222,7 @@ function handleSubmit(event) {
       newWeight.value = data.weight;
       slidePanelFormData.value = {};
       store.settings = data.settings;
-      console.log(store.settings);
+      goal.value = data.settings.goal;
       isSlidePanelOpen.value = false;
       updateComponent.value++;
     })
