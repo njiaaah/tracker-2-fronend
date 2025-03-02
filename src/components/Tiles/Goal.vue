@@ -10,11 +10,11 @@
               <div class="flex justify-between leading-5">
                 <div>
                   <div class="opacity-50">cal</div>
-                  <div>{{ caloriesToday }}</div>
+                  <div class="dark:text-gray-300 opacity-50">{{ caloriesToday }}</div>
                 </div>
                 <div class="text-end">
                   <div class="opacity-50">goal</div>
-                  <div>{{ localGoal }}</div>
+                  <div class="dark:text-gray-300 opacity-50">{{ localGoal }}</div>
                 </div>
               </div>
             </template>
