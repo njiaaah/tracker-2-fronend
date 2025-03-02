@@ -1,26 +1,22 @@
 <template>
   <div>
-    <slot name="header"> </slot>
+    <slot name="header"></slot>
     <slot name="default">
       <Loading v-if="!isLoaded" />
-      <div
-        v-else
-        class="flex h-full flex-col justify-between font-bold"
-      >
+      <div v-else class="flex h-full flex-col justify-between font-bold">
         <div class="h-full mt-6">
-          <Radial :max="goal" :current="caloriesToday">
+          <Radial :max="settings.goal" :key="radialKey" :current="caloriesToday">
             <template v-slot:values>
-                <div class="flex justify-between leading-5">
-                  <div>
-                    <div class="opacity-50">cal</div>
-                    <div>{{caloriesToday}}</div>
-                  </div>
-                  <div class="text-end">
-                    <div class="opacity-50">goal</div>
-                    <div>{{goal}}</div>
-                  </div>
-
+              <div class="flex justify-between leading-5">
+                <div>
+                  <div class="opacity-50">cal</div>
+                  <div class="dark:text-gray-300 opacity-50">{{ caloriesToday }}</div>
                 </div>
+                <div class="text-end">
+                  <div class="opacity-50">goal</div>
+                  <div class="dark:text-gray-300 opacity-50">{{ localGoal }}</div>
+                </div>
+              </div>
             </template>
           </Radial>
         </div>
@@ -30,18 +26,43 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, watch } from 'vue';
+<script>
 import Loading from '../Icons/Loading.vue';
 import Radial from '../Indicator/Radial.vue';
+import { mapState } from 'pinia';
+import { useUserStore } from '@/stores/user';
 
-const props = defineProps(['goal', 'caloriesToday']);
-const isLoaded = ref(true);
-
-watch(
-  () => props.caloriesToday,
-  () => {
-    isLoaded.value = true;
+export default {
+  components: {
+    Loading,
+    Radial,
   },
-);
+  props: {
+    goal: Number,
+    caloriesToday: Number,
+  },
+  data() {
+    return {
+      isLoaded: true,
+      localGoal: this.goal,
+      radialKey: 0,
+    };
+  },
+  computed: {
+    ...mapState(useUserStore, ['settings']),
+  },
+  watch: {
+    caloriesToday() {
+      this.isLoaded = true;
+    },
+    goal() {
+      this.isLoaded = true;
+      this.localGoal = this.goal;
+      this.radialKey++;
+    },
+  },
+  mounted() {
+    // console.log('goal local ', this.settings.goal);
+  },
+};
 </script>

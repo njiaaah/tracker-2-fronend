@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import { storeToRefs } from 'pinia';
 import { useUserStore } from '../../stores/user';
 
 export default {
@@ -52,24 +51,37 @@ export default {
           emitData: {
             url: '/food_logs',
             label: 'Add food for selected day',
+            name: 'food',
             inputs: [
                 {
                     name: 'name',
                     type: 'text',
                     placeholder: 'Food',
-                    required: true
+                    required: true,
+                    value: ''
                 },
-                {
-                    name: 'weight',
-                    type: 'number',
-                    placeholder: 'Weight',
-                    required: true
-                },
+                // {
+                //     name: 'weight',
+                //     type: 'number',
+                //     placeholder: 'Weight',
+                //     required: true,
+                //     value : ''
+                // },
                 {
                     name: 'calories',
                     type: 'number',
                     placeholder: 'Calories',
-                    required: true
+                    required: true,
+                    value: '',
+                },
+                {
+                    name: 'amount',
+                    type: 'number',
+                    subtype: 'amount',
+                    placeholder: 'amount',
+                    required: false,
+                    value: 1,
+                    minmax: [1, 5]
                 }
             ]
           },

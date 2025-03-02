@@ -2,7 +2,7 @@
   <button :type="type">
     <div
       :class="color"
-      class="rounded-lg p-4 text-center w-full text-white"
+      class="rounded-lg p-4 text-center w-full text-white active:brightness-50"
     >
       {{ label ? label : 'button' }}
     </div>
