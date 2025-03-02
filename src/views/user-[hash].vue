@@ -39,7 +39,6 @@
               :selected-day="selectedDay"
               :a-week-before-day="aWeekBeforeDay"
               :new-item="newItem"
-              :goal="settings?.goal ? settings.goal : 2000"
               @emit-todays-foods="emitTodaysFoods"
               :calories-today="caloriesToday"
               :new-weight="newWeight"
@@ -231,6 +230,7 @@ function handleSubmit(event) {
       newWeight.value = data.weight;
       slidePanelFormData.value = {};
       store.settings = data.settings;
+      console.log(store.settings);
       isSlidePanelOpen.value = false;
       updateComponent.value++;
     })

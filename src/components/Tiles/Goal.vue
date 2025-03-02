@@ -8,7 +8,7 @@
         class="flex h-full flex-col justify-between font-bold"
       >
         <div class="h-full mt-6">
-          <Radial :max="goal" :current="caloriesToday">
+          <Radial :max="settings.goal" :current="caloriesToday">
             <template v-slot:values>
                 <div class="flex justify-between leading-5">
                   <div>
@@ -34,7 +34,11 @@
 import { ref, onMounted, watch } from 'vue';
 import Loading from '../Icons/Loading.vue';
 import Radial from '../Indicator/Radial.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
 
+const store = useUserStore();
+const { user_id, settings } = storeToRefs(store);
 const props = defineProps(['goal', 'caloriesToday']);
 const isLoaded = ref(true);
 
@@ -44,4 +48,7 @@ watch(
     isLoaded.value = true;
   },
 );
+onMounted(() => {
+  console.log('goal local ' , settings.goal)
+})
 </script>

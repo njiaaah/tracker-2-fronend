@@ -1,10 +1,13 @@
 
 <template>
   <main class="flex h-[100dvh] flex-col justify-end pb-4">
+    <transition>
+    <LoaderWrapper :isLoading="isLoading" :label="$t('loading')">
     <div class="h-full grid items-center align-center justify-center">
       <img src="/logo.png" alt="logo" class="w-32 block self-center" />
     </div>
     <h1 class="text-2xl text-center mb-8">{{$t('signUp')}}</h1>
+
     <form @submit.prevent="login" class="flex flex-col gap-4 px-8 mb-12">
       <Input
         :placeholder="$t('email')"
@@ -19,22 +22,25 @@
         @keydown.enter="login"
       />
       <button type="submit">
-      <Button label="Вход"></Button>
+      <Button class="w-full" label="Вход"></Button>
     </button>
     </form>
-    <span class="text-center opacity-25">0.1.0</span>
+
+    <span class="text-center opacity-25">0.2.0</span>
+  </LoaderWrapper>
+</transition>
   </main>
 </template>
 
 <script setup>
 import { useUserStore } from '../stores/user';
-import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'vue-router';
 import Button from '../components/Items/Button.vue';
 import Input from '../components/Items/Input.vue';
+import LoaderWrapper from '@/components/Items/LoaderWrapper.vue';
 
 const router = useRouter();
 const store = useUserStore();
@@ -42,8 +48,10 @@ const email = ref('');
 const password = ref('');
 const apiUrl = import.meta.env.VITE_API_URL;
 const hash = ref('');
+const isLoading = ref(false);
 
 function login() {
+  isLoading.value = true;
   const token = Cookies.get('token');
   if (token) {
     router.push({ name: 'user', params: { hash: store.settings.hash } });
@@ -64,6 +72,7 @@ function login() {
     })
     .catch(function (error) {
       console.log(error);
+      isLoading.value = false;
     });
 }
 
@@ -95,4 +104,3 @@ async function getHash() {
   }
 }
 </script>
-
