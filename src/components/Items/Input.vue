@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <div v-if="subtype === 'amount'" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500 active:scale-90 transition-transform">
+    <div v-if="subtype === 'amount'"  class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500 active:scale-90 transition-transform">
       <mdicon name="plus" :size="38" @click="increment"></mdicon>
     </div>
     <div v-if="subtype === 'amount'" class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-sky-500 active:scale-90 transition-transform">
@@ -11,6 +11,7 @@
     :placeholder="placeholder"
     v-model="modelValue"
     :name="name"
+    :step="step"
     @input="$emit('update:modelValue', $event.target.value)"
     class="p-4 rounded-xl border-none outline-none ring-1 ring-sky-500 focus:ring-3 text-xl placeholder:opacity-50 w-full"
     :class="subtype === 'amount' ? 'pl-18' : ''"
@@ -54,6 +55,10 @@ export default {
     minmax: {
       type: Array,
       default: [],
+    },
+    step: {
+      type: Number,
+      default: 1,
     }
   },
   methods: {

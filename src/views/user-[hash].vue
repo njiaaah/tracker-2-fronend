@@ -97,6 +97,7 @@
               :type="input.type"
               :subtype="input.subtype"
               :minmax="input.minmax"
+              :step="input.step"
             />
           </div>
           <Button :type="'submit'" label="Save" />

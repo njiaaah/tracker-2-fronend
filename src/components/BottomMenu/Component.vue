@@ -37,9 +37,10 @@ export default {
             inputs: [
                 {
                     name: 'weight',
-                    type: 'number',
+                    type: 'string',
                     placeholder: 'Weight',
-                    required: true
+                    required: true,
+                    step: 0.1,
                 }
             ]
           },
@@ -58,7 +59,8 @@ export default {
                     type: 'text',
                     placeholder: 'Food',
                     required: true,
-                    value: ''
+                    value: '',
+
                 },
                 // {
                 //     name: 'weight',
